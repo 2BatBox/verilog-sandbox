@@ -1,5 +1,4 @@
-module IRotaryEncoder
-	(
+module IRotaryEncoder(
 	input i_clk,
 	input i_phase_a,
 	input i_phase_b,
