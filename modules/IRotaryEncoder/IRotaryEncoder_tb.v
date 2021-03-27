@@ -4,7 +4,7 @@
 module IRotaryEncoder_tb();
 
 parameter CLOCK_PERIOD = 1;
-parameter DELAY = CLOCK_PERIOD * 30;
+parameter DELAY_CLOCK_CYCLES = 4/*IRotaryEncoder*/ + 1/*update ra_cnt*/;
 parameter COUNTER_WIDTH = 2;
 parameter COUNTER_RANGE = 2 ** COUNTER_WIDTH;
 parameter COUNTER_MAX = COUNTER_RANGE - 1;
@@ -36,68 +36,113 @@ end
 
 IRotaryEncoder uut(r_clk, r_phase_a, r_phase_b, w_cnt, w_cnt_cw);
 
+// common tasks
+task set_phase(input [1:0] ia_phase);
+begin
+	@(negedge r_clk);
+	r_phase_a <= ia_phase[0];
+	r_phase_b <= ia_phase[1];
+end
+endtask
+
+task wait_response();
+repeat (DELAY_CLOCK_CYCLES) begin
+		@(posedge r_clk);
+	end
+endtask
+
 initial begin
 
-	#DELAY `assert_eq(ra_cnt, 0);
+	// Init state.
+	set_phase(2'b00);
+	repeat (DELAY_CLOCK_CYCLES) begin
+		@(posedge r_clk);
+	end
 
 	// Rotate clockwise.
 	repeat (COUNTER_MAX) begin
-		#DELAY r_phase_a = 1;
-		#DELAY r_phase_b = 1;
-		#DELAY r_phase_a = 0;
-		#DELAY r_phase_b = 0;
+		set_phase(2'b01);
+		set_phase(2'b11);
+		set_phase(2'b10);
+		set_phase(2'b00);
+
+		wait_response();
 	end
-	#DELAY `assert_eq(ra_cnt, COUNTER_MAX);
+	`assert_eq(ra_cnt, COUNTER_MAX);
 
 	// Rotate counterclockwise.
 	repeat (COUNTER_MAX) begin
-		#DELAY r_phase_b = 1;
-		#DELAY r_phase_a = 1;
-		#DELAY r_phase_b = 0;
-		#DELAY r_phase_a = 0;
+		set_phase(2'b10);
+		set_phase(2'b11);
+		set_phase(2'b01);
+		set_phase(2'b00);
+
+		wait_response();
 	end
-	#DELAY `assert_eq(ra_cnt, 0);
+	`assert_eq(ra_cnt, 0);
 
 	// Inconsistent input.
-	// w_cnt and w_cnt_cw changes are not allowed anymore.
+	// No response must be given.
 	r_watch_dog = 1;
 
 	// Separate pulses.
 	repeat (COUNTER_MAX) begin
-		#DELAY r_phase_a = 1;
-		#DELAY r_phase_a = 0;
-	end
+		set_phase(2'b01);
+		set_phase(2'b00);
+		set_phase(2'b10);
+		set_phase(2'b00);
 
-	repeat (COUNTER_MAX) begin
-		#DELAY r_phase_b = 1;
-		#DELAY r_phase_b = 0;
+		wait_response();
 	end
 
 	// Glitchy phases.
 	repeat (COUNTER_MAX) begin
-		#DELAY;
-		r_phase_a = 1;
-		r_phase_b = 1;
-		#DELAY;
-		r_phase_a = 0;
-		r_phase_b = 0;
+		set_phase(2'b00);
+		set_phase(2'b11);
+		set_phase(2'b00);
+
+		wait_response();
 	end
 
 	repeat (COUNTER_MAX) begin
-		#DELAY r_phase_b = 1;
-		#DELAY r_phase_a = 1;
-		#DELAY r_phase_a = 0;
-		#DELAY r_phase_b = 0;
+		set_phase(2'b00);
+		set_phase(2'b10);
+		set_phase(2'b11);
+		set_phase(2'b10);
+		set_phase(2'b00);
+
+		wait_response();
 	end
 
 	repeat (COUNTER_MAX) begin
-		#DELAY r_phase_a = 1;
-		#DELAY r_phase_b = 1;
-		#DELAY r_phase_b = 0;
-		#DELAY r_phase_a = 0;
+		set_phase(2'b00);
+		set_phase(2'b01);
+		set_phase(2'b11);
+		set_phase(2'b01);
+		set_phase(2'b00);
+
+		wait_response();
 	end
 
-	#DELAY;
+	repeat (COUNTER_MAX) begin
+		set_phase(2'b00);
+		set_phase(2'b10);
+		set_phase(2'b11);
+		set_phase(2'b00);
+
+		wait_response();
+	end
+
+	repeat (COUNTER_MAX) begin
+		set_phase(2'b00);
+		set_phase(2'b01);
+		set_phase(2'b11);
+		set_phase(2'b00);
+
+		wait_response();
+	end
+
+	#DELAY_CLOCK_CYCLES;
 	`assert_pass;
 end
 
@@ -107,3 +152,4 @@ initial begin
 end
 
 endmodule
+

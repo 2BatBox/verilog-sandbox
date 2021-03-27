@@ -21,30 +21,16 @@ wire w_cnt;
 wire w_cnt_cw;
 
 
-/*
-always@(posedge CLK) begin
-	if(w_cnt)
-		ra_cnt <= ra_cnt + (w_cnt_cw ? 1 : -1);
-end
-*/
-
-/*
-always@(posedge CLK) begin
-	r_button_dirty <= P1B4;
-	r_button <= r_button_dirty;
-	if(r_button_dirty == 1'b1 && r_button == 1'b0)
-		ra_cnt <= ra_cnt + 1;
-end
-*/
-
 always@(posedge CLK) begin
 	r_button <= w_button;
-	if(r_button == 1'b0 && w_button == 1'b1)
-		ra_cnt <= ra_cnt + 1;
+	if(w_cnt)
+		ra_cnt <= ra_cnt + (w_cnt_cw ? 1 : -1);
+//		ra_cnt <= ra_cnt + 1;
+	//if(r_button == 1'b0 && w_button == 1'b1)
+		//ra_cnt <= ra_cnt - 1;
 end
 
-
-//IRotaryEncoder ire(CLK, P1B1, P1B3, w_cnt, w_cnt_cw);
+IRotaryEncoder ire(CLK, P1B1, P1B3, w_cnt, w_cnt_cw);
 Debouncer #(.PERIOD(16000)) db(CLK, P1B4, w_button);
 
 assign {P1A1, P1A2, P1A3, P1A4} = ra_cnt;
