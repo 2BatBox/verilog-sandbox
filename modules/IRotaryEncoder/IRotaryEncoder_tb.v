@@ -19,8 +19,7 @@ wire w_cnt_cw;
 
 // setup clock
 always begin
-	#CLOCK_PERIOD r_clk = 1'b0;
-	#CLOCK_PERIOD r_clk = 1'b1;
+	#CLOCK_PERIOD r_clk = ~r_clk;
 end
 
 // setup watchdog
@@ -37,7 +36,8 @@ end
 IRotaryEncoder uut(r_clk, r_phase_a, r_phase_b, w_cnt, w_cnt_cw);
 
 // common tasks
-task set_phase(input [1:0] ia_phase);
+task set_phase;
+input [1:0] ia_phase;
 begin
 	@(negedge r_clk);
 	r_phase_a <= ia_phase[0];
@@ -45,7 +45,7 @@ begin
 end
 endtask
 
-task wait_response();
+task wait_response;
 repeat (DELAY_CLOCK_CYCLES) begin
 		@(posedge r_clk);
 	end
@@ -55,11 +55,9 @@ initial begin
 
 	// Init state.
 	set_phase(2'b00);
-	repeat (DELAY_CLOCK_CYCLES) begin
-		@(posedge r_clk);
-	end
+	wait_response();
 
-	// Rotate clockwise.
+	// Rotate clockwise in the full cycle.
 	repeat (COUNTER_MAX) begin
 		set_phase(2'b01);
 		set_phase(2'b11);
@@ -70,7 +68,7 @@ initial begin
 	end
 	`assert_eq(ra_cnt, COUNTER_MAX);
 
-	// Rotate counterclockwise.
+	// Rotate counterclockwise in the full cycle.
 	repeat (COUNTER_MAX) begin
 		set_phase(2'b10);
 		set_phase(2'b11);
@@ -80,6 +78,27 @@ initial begin
 		wait_response();
 	end
 	`assert_eq(ra_cnt, 0);
+
+	// Rotate clockwise in the short cycle.
+	repeat (COUNTER_MAX) begin
+		set_phase(2'b01);
+		set_phase(2'b10);
+		set_phase(2'b00);
+
+		wait_response();
+	end
+	`assert_eq(ra_cnt, COUNTER_MAX);
+
+	// Rotate counterclockwise in the short cycle.
+	repeat (COUNTER_MAX) begin
+		set_phase(2'b10);
+		set_phase(2'b01);
+		set_phase(2'b00);
+
+		wait_response();
+	end
+	`assert_eq(ra_cnt, 0);
+
 
 	// Inconsistent input.
 	// No response must be given.

@@ -17,7 +17,7 @@ module IRotaryEncoder(
 
 Pipeline.
 
-clock	| wires and registers
+Clock	| State transition
 ----------------------------------------------------------------------------
 +0		| {i_phase_a, i_phase_b} -> ra_phase_input
 +1		| ra_phase_input -> ra_phase
@@ -52,11 +52,12 @@ always@(posedge i_clk) begin
 	// Save the previous state.
 	ra_phase_prev <= ra_phase;
 
-	// Update 'leave zero' direction.
-	if(ra_phase_prev == 2'b00 && ra_phase != 2'b11)
+	// Leaving zero phase transition.
+	// Transition 0:0 -> 1:1 is inconsistent.
+	if(ra_phase != 2'b11 && ra_phase_prev == 2'b00)
 		ra_leave_zero <= ra_phase;
 
-	// Update 'enter zero' direction.
+	// Enter zero phase transition with ra_leave_zero set previously.
 	if(ra_phase == 2'b00 && ra_leave_zero != 2'b00) begin
 		if(ra_phase_prev == ~ra_leave_zero) begin
 			r_cnt <= 1'b1;
