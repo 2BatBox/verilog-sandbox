@@ -4,8 +4,9 @@
 module Debouncer_tb();
 
 parameter CLOCK_PERIOD = 1;
-parameter DELAY_PERIOD = CLOCK_PERIOD * 10;
-parameter WAIT_PERIOD = DELAY_PERIOD * 4;
+parameter CNT_WIDTH = 2;
+parameter WAIT_PERIOD = $pow(2, CNT_WIDTH);
+parameter ATTEMPT_CNT = 10;
 
 reg r_clk = 0;
 reg r_input = 0;
@@ -14,8 +15,7 @@ wire w_output;
 
 // setup clock
 always begin
-	#CLOCK_PERIOD r_clk = 1'b0;
-	#CLOCK_PERIOD r_clk = 1'b1;
+	#CLOCK_PERIOD r_clk = ~r_clk;
 end
 
 // setup watchdog
@@ -24,16 +24,36 @@ always @(w_output) begin
 		`assert_fail;
 end
 
-Debouncer #(.PERIOD(DELAY_PERIOD)) uut(r_clk, r_input, w_output);
+Debouncer #(.p_CNT_WIDTH(CNT_WIDTH)) uut(r_clk, r_input, w_output);
 
 initial begin
 
-//	repeat (10) begin
-		#DELAY_PERIOD r_input = 1;
-		#DELAY_PERIOD r_input = 0;
-	//end
-	
-	#WAIT_PERIOD;	
+	// operate in the tolerance period.
+	// no changes of w_output should occure.
+	#WAIT_PERIOD;
+	r_watch_dog <= 1;
+
+	repeat (ATTEMPT_CNT) begin
+		@(negedge r_clk);
+		r_input = ~r_input;
+		repeat (WAIT_PERIOD - 1)
+			@(posedge r_clk);	
+	end
+	r_input = w_output;
+
+	// operate out of the tolerance period.
+	#WAIT_PERIOD;
+	repeat (ATTEMPT_CNT) begin
+		r_watch_dog <= 1;
+		@(negedge r_clk);
+		r_input = ~r_input;
+		repeat (WAIT_PERIOD - 1)
+			@(posedge r_clk);
+		r_watch_dog <= 0;
+		@(posedge r_clk);
+		@(negedge r_clk);
+		`assert_eq(w_output, r_input);
+	end
 
 	#WAIT_PERIOD;
 	`assert_pass;

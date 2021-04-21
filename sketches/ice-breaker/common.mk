@@ -1,6 +1,6 @@
 target = target
 
-modules_path=$(addprefix ../../modules/, $(modules))
+modules_path=$(addprefix ../../../modules/, $(modules))
 modules_files=$(addsuffix .v, $(modules_path))
 modules_files+=$(sketch).v
 

@@ -1,4 +1,6 @@
-sim:
+.PHONY: sim show clean
+
+sim: $(module).v $(module)_tb.v
 	iverilog -o $(module)_tb.vvp $(module).v $(module)_tb.v
 	./$(module)_tb.vvp
 
@@ -8,3 +10,5 @@ show:
 clean:
 	rm -f $(module)_tb.vvp
 	rm -f $(module)_tb.vcd
+
+
