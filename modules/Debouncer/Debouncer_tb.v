@@ -1,4 +1,3 @@
-`timescale 100 ns / 10 ns
 `include "../assert.v"
 
 module Debouncer_tb();
