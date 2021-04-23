@@ -4,7 +4,6 @@
 module IRotaryEncoder_tb();
 
 parameter CLOCK_PERIOD = 1;
-parameter DELAY_CLOCK_CYCLES = 4/*IRotaryEncoder*/ + 1/*update ra_cnt*/;
 parameter COUNTER_WIDTH = 2;
 parameter COUNTER_RANGE = 2 ** COUNTER_WIDTH;
 parameter COUNTER_MAX = COUNTER_RANGE - 1;
@@ -12,7 +11,7 @@ parameter COUNTER_MAX = COUNTER_RANGE - 1;
 reg r_clk = 0;
 reg r_phase_a = 0;
 reg r_phase_b = 0;
-reg [COUNTER_WIDTH - 1 : 0] ra_cnt = 0;
+reg [COUNTER_WIDTH - 1 : 0] rv_cnt = 0;
 reg r_watch_dog = 0;
 wire w_cnt;
 wire w_cnt_cw;
@@ -30,7 +29,7 @@ end
 
 always@(posedge r_clk) begin
 	if(w_cnt)
-		ra_cnt <= ra_cnt + (w_cnt_cw ? 1 : -1);
+		rv_cnt <= rv_cnt + (w_cnt_cw ? 1 : -1);
 end
 
 IRotaryEncoder uut(r_clk, r_phase_a, r_phase_b, w_cnt, w_cnt_cw);
@@ -45,59 +44,66 @@ begin
 end
 endtask
 
-task wait_response;
-repeat (DELAY_CLOCK_CYCLES) begin
-		@(posedge r_clk);
+task set_phase_wait;
+input [1:0] ia_phase;
+begin
+	@(negedge r_clk);
+	r_phase_a <= ia_phase[0];
+	r_phase_b <= ia_phase[1];
+	repeat (10) begin
+		@(negedge r_clk);
 	end
+end
 endtask
+
 
 initial begin
 
 	// Init state.
 	set_phase(2'b00);
-	wait_response();
+	@(negedge r_clk);
 
-	// Rotate clockwise in the full cycle.
+	`assert_eq(rv_cnt, 0);
+
+	// Rotate clockwise.
 	repeat (COUNTER_MAX) begin
 		set_phase(2'b01);
 		set_phase(2'b11);
 		set_phase(2'b10);
 		set_phase(2'b00);
-
-		wait_response();
 	end
-	`assert_eq(ra_cnt, COUNTER_MAX);
+	@(negedge r_clk);
+	@(negedge r_clk);
+	`assert_eq(rv_cnt, COUNTER_MAX);
 
-	// Rotate counterclockwise in the full cycle.
+	// Rotate counterclockwise.
 	repeat (COUNTER_MAX) begin
 		set_phase(2'b10);
 		set_phase(2'b11);
 		set_phase(2'b01);
 		set_phase(2'b00);
-
-		wait_response();
 	end
-	`assert_eq(ra_cnt, 0);
+	@(negedge r_clk);
+	@(negedge r_clk);
+	`assert_eq(rv_cnt, 0);
 
-	// Rotate clockwise in the short cycle.
+	// Rotate clockwise.
 	repeat (COUNTER_MAX) begin
-		set_phase(2'b01);
-		set_phase(2'b10);
-		set_phase(2'b00);
-
-		wait_response();
+		set_phase_wait(2'b01);
+		set_phase_wait(2'b11);
+		set_phase_wait(2'b10);
+		set_phase_wait(2'b00);
 	end
-	`assert_eq(ra_cnt, COUNTER_MAX);
+	`assert_eq(rv_cnt, COUNTER_MAX);
 
-	// Rotate counterclockwise in the short cycle.
+	// Rotate counterclockwise.
 	repeat (COUNTER_MAX) begin
-		set_phase(2'b10);
-		set_phase(2'b01);
-		set_phase(2'b00);
-
-		wait_response();
+		set_phase_wait(2'b10);
+		set_phase_wait(2'b11);
+		set_phase_wait(2'b01);
+		set_phase_wait(2'b00);
 	end
-	`assert_eq(ra_cnt, 0);
+	`assert_eq(rv_cnt, 0);
 
 
 	// Inconsistent input.
@@ -110,8 +116,6 @@ initial begin
 		set_phase(2'b00);
 		set_phase(2'b10);
 		set_phase(2'b00);
-
-		wait_response();
 	end
 
 	// Glitchy phases.
@@ -119,8 +123,6 @@ initial begin
 		set_phase(2'b00);
 		set_phase(2'b11);
 		set_phase(2'b00);
-
-		wait_response();
 	end
 
 	repeat (COUNTER_MAX) begin
@@ -129,8 +131,6 @@ initial begin
 		set_phase(2'b11);
 		set_phase(2'b10);
 		set_phase(2'b00);
-
-		wait_response();
 	end
 
 	repeat (COUNTER_MAX) begin
@@ -139,8 +139,6 @@ initial begin
 		set_phase(2'b11);
 		set_phase(2'b01);
 		set_phase(2'b00);
-
-		wait_response();
 	end
 
 	repeat (COUNTER_MAX) begin
@@ -148,8 +146,6 @@ initial begin
 		set_phase(2'b10);
 		set_phase(2'b11);
 		set_phase(2'b00);
-
-		wait_response();
 	end
 
 	repeat (COUNTER_MAX) begin
@@ -157,11 +153,10 @@ initial begin
 		set_phase(2'b01);
 		set_phase(2'b11);
 		set_phase(2'b00);
-
-		wait_response();
 	end
 
-	#DELAY_CLOCK_CYCLES;
+	@(negedge r_clk);
+	@(negedge r_clk);
 	`assert_pass;
 end
 

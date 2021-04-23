@@ -13,28 +13,21 @@ module IRotaryEncoder(
 	output o_cnt_cw
 	);
 
-/**
+parameter STATE_S0 = 3'b000;
+parameter STATE_S1 = 3'b001;
+parameter STATE_S2 = 3'b010;
+parameter STATE_S3 = 3'b011;
+parameter STATE_S4 = 3'b100;
+parameter STATE_S5 = 3'b101;
+parameter STATE_S6 = 3'b110;
+parameter STATE_ERR = 3'b111;
 
-Pipeline.
+parameter PHASE_ZERO = 2'b00;
+parameter PHASE_A = 2'b01;
+parameter PHASE_B = 2'b10;
+parameter PHASE_AB = 2'b11;
 
-Clock	| State transition
-----------------------------------------------------------------------------
-+0		| {i_phase_a, i_phase_b} -> ra_phase_input
-+1		| ra_phase_input -> ra_phase
-+2		| ra_phase -> ra_phase_prev
-		| {ra_phase, ra_phase_prev} -> {ra_leave_zero}
-+3		| {ra_leave_zero, ra_phase} -> {r_cnt, r_cnt_cw}
-		| {r_cnt, r_cnt_cw} -> {o_cnt, o_cnt_cw}
-----------------------------------------------------------------------------
-
-Reaction delay is 4 clock cycles.
-
-**/
-
-reg [1:0] ra_phase_input = 0;
-reg [1:0] ra_phase = 0;
-reg [1:0] ra_phase_prev = 0;
-reg [1:0] ra_leave_zero = 0;
+reg [3:0] rv_state = STATE_ERR;
 reg r_cnt = 0;
 reg r_cnt_cw = 0;
 
@@ -44,28 +37,56 @@ assign o_cnt_cw = r_cnt_cw;
 
 always@(posedge i_clk) begin
 
-	// The input registers are necessary here since i_phase_a and i_phase_b
-	// are extarnal async signals.
-	ra_phase_input <= {i_phase_a, i_phase_b};
-	ra_phase <= ra_phase_input;
-		
-	// Save the previous state.
-	ra_phase_prev <= ra_phase;
+	if(r_cnt) begin
+		r_cnt <= 0;
+		r_cnt_cw <= 0;
+	end
 
-	// Leaving zero phase transition.
-	// Transition 0:0 -> 1:1 is inconsistent.
-	if(ra_phase != 2'b11 && ra_phase_prev == 2'b00)
-		ra_leave_zero <= ra_phase;
-
-	// Enter zero phase transition with ra_leave_zero set previously.
-	if(ra_phase == 2'b00 && ra_leave_zero != 2'b00) begin
-		if(ra_phase_prev == ~ra_leave_zero) begin
-			r_cnt <= 1'b1;
-			r_cnt_cw <= ra_leave_zero[1];
+	case({i_phase_a, i_phase_b})
+		PHASE_ZERO: begin
+			rv_state <= STATE_S0;
+			case (rv_state)
+				STATE_S3: begin r_cnt <= 1; r_cnt_cw <= 0; end
+				STATE_S6: begin r_cnt <= 1; r_cnt_cw <= 1; end
+			endcase;
 		end
-		ra_leave_zero <= 2'b00;
-	end else
-		r_cnt <= 1'b0;
+
+		PHASE_A: begin
+			case (rv_state)
+				STATE_S0: rv_state <= STATE_S1;
+				STATE_S1: rv_state <= STATE_S1;
+				STATE_S2: rv_state <= STATE_S1;
+				STATE_S5: rv_state <= STATE_S6;
+				STATE_S6: rv_state <= STATE_S6;
+				default: rv_state <= STATE_ERR;
+			endcase;
+		end
+
+		PHASE_B: begin
+			case (rv_state)
+				STATE_S0: rv_state <= STATE_S4;
+				STATE_S2: rv_state <= STATE_S3;
+				STATE_S3: rv_state <= STATE_S3;
+				STATE_S4: rv_state <= STATE_S4;
+				STATE_S5: rv_state <= STATE_S4;
+				default: rv_state <= STATE_ERR;
+			endcase;
+		end
+
+		PHASE_AB: begin
+			case (rv_state)
+				STATE_S1: rv_state <= STATE_S2;
+				STATE_S2: rv_state <= STATE_S2;
+				STATE_S3: rv_state <= STATE_S2;
+				STATE_S4: rv_state <= STATE_S5;
+				STATE_S5: rv_state <= STATE_S5;
+				STATE_S6: rv_state <= STATE_S5;
+				default: rv_state <= STATE_ERR;
+			endcase;
+		end
+
+
+	endcase;
 
 end
 
