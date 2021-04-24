@@ -28,7 +28,7 @@ Debouncer #(.p_CNT_WIDTH(CNT_WIDTH), .p_INIT_VALUE(1'b0)) uut(r_clk, r_input, w_
 initial begin
 
 	// Toggle the the input every clock posedge.
-	// No changes of w_output is allowed in this section.
+	// No changes of w_output are allowed in this section.
 	#TOLERANCE_PERIOD;
 	r_watch_dog <= 1;
 	repeat (ATTEMPT_CNT) begin
@@ -38,7 +38,7 @@ initial begin
 	r_input = w_output;
 
 	// Operate in the tolerance period minus one clock cycle.
-	// No changes of w_output is allowed in this section.
+	// No changes of w_output are allowed in this section.
 	#TOLERANCE_PERIOD;
 	r_watch_dog <= 1;
 	repeat (ATTEMPT_CNT) begin
@@ -50,7 +50,7 @@ initial begin
 	r_input = w_output;
 
 	// Operate in a half a tolerance period.
-	// No changes of w_output is allowed in this section.
+	// No changes of w_output are allowed in this section.
 	#TOLERANCE_PERIOD;
 	r_watch_dog <= 1;
 	repeat (ATTEMPT_CNT) begin

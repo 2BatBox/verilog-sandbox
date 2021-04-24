@@ -35,16 +35,17 @@ module top(
 
 	);
 
-reg [7:0] cnt = 0;
+reg [7:0] cnt_led = 0;
+reg [7:0] cnt_7seg = 0;
 
-//reg [3:0] rv_sw = 0;
-//wire [3:0] wv_sw;
-//wire [3:0] wv_sw_clk = (~rv_sw) & wv_sw;
+wire [3:0] wv_sw;
+wire [3:0] wv_sw_click;
 
-//Debouncer #(.p_INPUT_WIDTH(4), .p_CNT_WIDTH(16)) m_debouncer(CLK, {SW4, SW3, SW2, SW1}, wv_sw);
+Debouncer #(.p_WIDTH(4), .p_CNT_WIDTH(16)) m_debouncer(CLK, {SW4, SW3, SW2, SW1}, wv_sw);
+EdgeDetector #(.p_WIDTH(4), .p_RISE_DETECTOR(1)) uut(CLK, wv_sw, wv_sw_click);
 
-Seg7Sync m_7seg_sync(CLK, cnt[7:4], {S1_A, S1_B, S1_C, S1_D, S1_E, S1_F, S1_G});
-Seg7Async m_7seg_async(cnt[3:0], {S2_A, S2_B, S2_C, S2_D, S2_E, S2_F, S2_G});
+Seg7Sync m_7seg_sync(CLK, cnt_7seg[7:4], {S1_A, S1_B, S1_C, S1_D, S1_E, S1_F, S1_G});
+Seg7Async m_7seg_async(cnt_7seg[3:0], {S2_A, S2_B, S2_C, S2_D, S2_E, S2_F, S2_G});
 
 wire w_irot_cnt;
 wire w_irot_cnt_cw;
@@ -56,9 +57,19 @@ IRotaryEncoder m_irot(CLK, w_irot_phase_a, w_irot_phase_b, w_irot_cnt, w_irot_cn
 
 always @(posedge CLK) begin
 	if(w_irot_cnt)
-		cnt <= cnt + (w_irot_cnt_cw ? 1 : -1);
+		cnt_led <= cnt_led + (w_irot_cnt_cw ? 1 : -1);
 end
 
-assign {LED1, LED2, LED3, LED4} = {2{PMOD2, PMOD3}};//cnt;
+always @(posedge CLK) begin
+	case (wv_sw_click)
+	4'b0001: cnt_7seg <= cnt_7seg + 16;
+	4'b0010: cnt_7seg <= cnt_7seg - 16;
+	4'b0100: cnt_7seg <= cnt_7seg + 1;
+	4'b1000: cnt_7seg <= cnt_7seg - 1;
+	endcase;
+end
+
+
+assign {LED1, LED2, LED3, LED4} = cnt_led;
 
 endmodule

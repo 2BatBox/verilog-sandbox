@@ -5,13 +5,43 @@
 // 
 /////////////////////////////////////////////////////
 
+/****************************************************
+
+{A:B} Symbol.
+{0:0} Z
+{1:0} A
+{0:1} B
+{1:1} AB
+
+The FSM transition table.
+-------------------------
+|       | Input         |
+-------------------------
+| State | Z | A | B |AB |
+| S0    |S0 |S1 |S4 |ERR|
+| S1    |S0 |S1 |ERR|S2 |
+| S2    |S0 |S1 |S3 |S2 |
+| S3    |S0 |ERR|S3 |S2 |
+| S4    |S0 |ERR|S4 |S5 |
+| S5    |S0 |S6 |S4 |S5 |
+| S6    |S0 |S6 |ERR|S5 |
+| ERR   |S0 |ERR|ERR|ERR|
+-------------------------
+
+****************************************************/
+
 module IRotaryEncoder(
 	input i_clk,
 	input i_phase_a,
 	input i_phase_b,
-	output o_cnt,
-	output o_cnt_cw
+	output o_cnt,    // Rotation event flag. A one clock cycle width signal.
+	output o_cnt_cw  // Rotation direction flag. HIGH - if phase A rose first.
 	);
+
+parameter PHASE_ZERO = 2'b00;
+parameter PHASE_A = 2'b10;
+parameter PHASE_B = 2'b01;
+parameter PHASE_AB = 2'b11;
 
 parameter STATE_S0 = 3'b000;
 parameter STATE_S1 = 3'b001;
@@ -21,11 +51,6 @@ parameter STATE_S4 = 3'b100;
 parameter STATE_S5 = 3'b101;
 parameter STATE_S6 = 3'b110;
 parameter STATE_ERR = 3'b111;
-
-parameter PHASE_ZERO = 2'b00;
-parameter PHASE_A = 2'b01;
-parameter PHASE_B = 2'b10;
-parameter PHASE_AB = 2'b11;
 
 reg [3:0] rv_state = STATE_ERR;
 reg r_cnt = 0;
@@ -46,8 +71,8 @@ always@(posedge i_clk) begin
 		PHASE_ZERO: begin
 			rv_state <= STATE_S0;
 			case (rv_state)
-				STATE_S3: begin r_cnt <= 1; r_cnt_cw <= 0; end
-				STATE_S6: begin r_cnt <= 1; r_cnt_cw <= 1; end
+				STATE_S3: begin r_cnt <= 1; r_cnt_cw <= 1; end
+				STATE_S6: begin r_cnt <= 1; r_cnt_cw <= 0; end
 			endcase;
 		end
 
