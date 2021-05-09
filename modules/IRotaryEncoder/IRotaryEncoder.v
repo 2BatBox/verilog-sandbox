@@ -38,19 +38,19 @@ module IRotaryEncoder(
 	output o_cnt_cw  // Rotation direction flag. HIGH - if phase A rose first.
 	);
 
-parameter PHASE_ZERO = 2'b00;
-parameter PHASE_A = 2'b10;
-parameter PHASE_B = 2'b01;
-parameter PHASE_AB = 2'b11;
+localparam [1:0] PHASE_ZERO = 2'b00;
+localparam [1:0] PHASE_A = 2'b10;
+localparam [1:0] PHASE_B = 2'b01;
+localparam [1:0] PHASE_AB = 2'b11;
 
-parameter STATE_S0 = 3'b000;
-parameter STATE_S1 = 3'b001;
-parameter STATE_S2 = 3'b010;
-parameter STATE_S3 = 3'b011;
-parameter STATE_S4 = 3'b100;
-parameter STATE_S5 = 3'b101;
-parameter STATE_S6 = 3'b110;
-parameter STATE_ERR = 3'b111;
+localparam [2:0] STATE_S0 = 3'b000;
+localparam [2:0] STATE_S1 = 3'b001;
+localparam [2:0] STATE_S2 = 3'b010;
+localparam [2:0] STATE_S3 = 3'b011;
+localparam [2:0] STATE_S4 = 3'b100;
+localparam [2:0] STATE_S5 = 3'b101;
+localparam [2:0] STATE_S6 = 3'b110;
+localparam [2:0] STATE_ERR = 3'b111;
 
 reg [3:0] rv_state = STATE_ERR;
 reg r_cnt = 0;

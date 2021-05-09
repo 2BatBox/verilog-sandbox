@@ -6,9 +6,9 @@
 
 module Debouncer
 	#(
-	parameter p_WIDTH = 1,         // The input/output vector width.
-	parameter p_CNT_WIDTH = 1,     // The counter width. The tolerance period is 2^p_CNT_WIDTH.
-	parameter p_INIT_VALUE = 1'b0  // The value that ov_output takes before the very first posedge clock cycle happens.
+	parameter integer p_WIDTH = 1,           // The input/output vector width.
+	parameter integer p_CNT_WIDTH = 1,       // The counter width. The tolerance period is 2^p_CNT_WIDTH.
+	parameter [p_WIDTH-1:0] p_INIT_VALUE = 0 // The value that ov_output takes before the very first clock cycle happens.
 	)
 
 	(

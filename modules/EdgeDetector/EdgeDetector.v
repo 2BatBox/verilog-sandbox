@@ -1,7 +1,7 @@
 module EdgeDetector
 	#(
-	parameter p_WIDTH = 1,
-	parameter p_RISE_DETECTOR = 1	// (0 - fall detector, 1 - rise detector)
+	parameter integer p_WIDTH = 1,
+	parameter [0:0] p_RISE_DETECTOR = 1'b1  // (0 - fall detector, 1 - rise detector)
 	)
 	(
 	input i_clk,
@@ -9,7 +9,7 @@ module EdgeDetector
 	output [p_WIDTH-1:0] ov_output
 	);
 
-reg [p_WIDTH-1:0] rv_state = {p_WIDTH{p_RISE_DETECTOR > 0}};
+reg [p_WIDTH-1:0] rv_state = {p_WIDTH{p_RISE_DETECTOR}};
 reg [p_WIDTH-1:0] rv_output = 0;
 
 assign ov_output = rv_output;

@@ -5,7 +5,7 @@
 /////////////////////////////////////////////////////
 
 module SyncChain
-	#(parameter p_WIDTH = 1)
+	#(parameter integer p_WIDTH = 1)
 	(
 	input i_clk,
 	input [p_WIDTH-1:0] iv_input,
