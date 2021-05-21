@@ -35,7 +35,8 @@ module IRotaryEncoder(
 	input i_phase_a,
 	input i_phase_b,
 	output o_cnt,    // Rotation event flag. A one clock cycle width signal.
-	output o_cnt_cw  // Rotation direction flag. HIGH - if phase A rose first.
+	output o_cnt_cw,  // Rotation direction flag. HIGH - if phase A rose first.
+	output o_debug_err_state
 	);
 
 localparam [1:0] PHASE_ZERO = 2'b00;
@@ -59,6 +60,7 @@ reg r_cnt_cw = 0;
 // output wires
 assign o_cnt = r_cnt;
 assign o_cnt_cw = r_cnt_cw;
+assign o_debug_err_state = rv_state == STATE_ERR;
 
 always@(posedge i_clk) begin
 

@@ -1,4 +1,6 @@
-`include "../assert.v"
+`include "assert.v"
+`include "io/Seg7Async.v"
+`include "io/Seg7Sync.v"
 
 module Seg7_tb();
 

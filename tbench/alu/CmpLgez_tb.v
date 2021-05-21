@@ -1,4 +1,5 @@
-`include "../assert.v"
+`include "assert.v"
+`include "alu/CmpLgez.v"
 
 module CmpLgez_tb();
 

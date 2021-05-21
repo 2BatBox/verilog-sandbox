@@ -1,5 +1,5 @@
-`timescale 100 ns / 10 ns
-`include "../assert.v"
+`include "assert.v"
+`include "io/IRotaryEncoder.v"
 
 module IRotaryEncoder_tb();
 
@@ -15,6 +15,7 @@ reg [COUNTER_WIDTH - 1 : 0] rv_cnt = 0;
 reg r_watch_dog = 0;
 wire w_cnt;
 wire w_cnt_cw;
+wire w_cnt_err;
 
 // setup clock
 always begin
@@ -32,7 +33,7 @@ always@(posedge r_clk) begin
 		rv_cnt <= rv_cnt + (w_cnt_cw ? 1 : -1);
 end
 
-IRotaryEncoder uut(r_clk, r_phase_a, r_phase_b, w_cnt, w_cnt_cw);
+IRotaryEncoder uut(r_clk, r_phase_a, r_phase_b, w_cnt, w_cnt_cw, w_cnt_err);
 
 // common tasks
 task set_phase;

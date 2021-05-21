@@ -1,4 +1,5 @@
-`include "../assert.v"
+`include "assert.v"
+`include "signal/EdgeDetector.v"
 
 module EdgeDetector_tb();
 

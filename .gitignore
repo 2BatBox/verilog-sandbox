@@ -5,5 +5,5 @@ local*
 *.bin
 *.json
 *.log
-modules/Dummy/*
+tbench/_build
 

@@ -1,4 +1,5 @@
-`include "../assert.v"
+`include "assert.v"
+`include "io/Debouncer.v"
 
 module Debouncer_tb();
 
