@@ -35,5 +35,5 @@ always@(posedge i_clk) begin
 	endcase;
 end
 
-endmodule
+endmodule // Seg7Sync
 
