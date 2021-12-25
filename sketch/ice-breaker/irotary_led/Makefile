@@ -1,4 +1,3 @@
-sketch = irotary_led
-modules = io/IRotaryEncoder io/Debouncer io/SyncChain
+source = io/IRotaryEncoder io/Debouncer io/SyncChain
 
-include ../ice-breaker.mk
+include ../Common.mk

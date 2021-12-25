@@ -12,7 +12,7 @@ initial begin
 end
 
 initial begin
-	$dumpfile("Dummy.vcd");
+	$dumpfile("Blank_tb.vcd");
 	$dumpvars(0, Dummy);
 end
 

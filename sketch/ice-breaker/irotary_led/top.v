@@ -1,4 +1,4 @@
-module inc_encoder_hw(
+module top(
 	input CLK,
 	input P1B1,
 	input P1B2,
@@ -21,8 +21,8 @@ wire w_button_sync;
 wire w_button_sync_deb;
 reg r_button_sync_deb = 0;
 
-reg [3:0] rv_cnt = 7;
-reg [3:0] rv_rgb = 7;
+reg [3:0] rv_cnt = 0;
+reg [3:0] rv_rgb = 0;
 
 wire w_cnt;
 wire w_cnt_cw;
