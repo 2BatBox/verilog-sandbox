@@ -1,17 +1,20 @@
 `include "tbench/assert.v"
-`include "lib/io/Debouncer.v"
+`include "lib/protocol/UartRx.v"
 
-module Debouncer_tb();
+module top();
 
-parameter CLOCK_PERIOD = 1;
-parameter CNT_WIDTH = 2;
-parameter TOLERANCE_PERIOD = $pow(2, CNT_WIDTH);
-parameter ATTEMPT_CNT = TOLERANCE_PERIOD * 3;
+localparam integer CLOCK_PERIOD = 1;
+localparam integer CLOCK_FREQ = 2;
+localparam integer BIT_RATE = 1;
 
 reg r_clk = 0;
-reg r_input = 0;
-reg r_watch_dog = 0;
-wire w_output;
+reg r_input = 1'b1;
+
+wire w_data;
+wire w_data_ready;
+
+//reg r_watch_dog = 0;
+//wire w_output;
 
 // setup clock
 always begin
@@ -19,15 +22,25 @@ always begin
 end
 
 // setup watchdog
-always @(w_output) begin
-	if(r_watch_dog)
-		`assert_fail;
-end
+//always @(w_output) begin
+//	if(r_watch_dog)
+//		`assert_fail;
+//end
 
-Debouncer #(.p_CNT_WIDTH(CNT_WIDTH), .p_INIT_VALUE(1'b0)) uut(r_clk, r_input, w_output);
+UartRx #(.p_BITSLOT_HALF_PERIOD(CLOCK_PERIOD),.p_DATA_BITS(1), .p_STOP_BITS(3)) uut(r_clk, r_input, w_data, w_data_ready);
+
 
 initial begin
 
+	#10;
+	r_input = ~r_input;
+	#4;
+	r_input = ~r_input;
+	#100;
+//	r_input = ~r_input;
+//	#10;
+
+/*
 	// Toggle the the input every clock posedge.
 	// No changes of w_output are allowed in this section.
 	#TOLERANCE_PERIOD;
@@ -78,12 +91,14 @@ initial begin
 	end
 
 	#TOLERANCE_PERIOD;
+	*/
+	#1
 	`assert_pass;
 end
 
 initial begin
-	$dumpfile("Debouncer_tb.vcd");
-	$dumpvars(0, Debouncer_tb);
+	$dumpfile("UartRx.vcd");
+	$dumpvars(0, top);
 end
 
-endmodule
+endmodule // top

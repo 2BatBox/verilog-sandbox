@@ -1,7 +1,7 @@
 `include "tbench/assert.v"
 `include "lib/signal/EdgeDetector.v"
 
-module EdgeDetector_tb();
+module top();
 
 parameter CLOCK_PERIOD = 1;
 
@@ -27,8 +27,8 @@ initial begin
 end
 
 initial begin
-	$dumpfile("EdgeDetector_tb.vcd");
-	$dumpvars(0, EdgeDetector_tb);
+	$dumpfile("EdgeDetector.vcd");
+	$dumpvars(0, top);
 end
 
-endmodule
+endmodule // top

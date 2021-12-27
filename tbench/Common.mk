@@ -3,16 +3,16 @@ FLAGS = -Wall -g2005-sv
 INCLUDE = ../../../
 .DEFAULT_GOAL = test
 
-$(tbench).vpp: $(tbench).v
-	$(CC) -I$(INCLUDE) $(FLAGS) -o $(tbench).vpp $(tbench).v
+$(tbench).vpp: $(TOP)
+	$(CC) -I$(INCLUDE) $(FLAGS) -o $(TEST_BENCH).vpp $(TOP)
 	
 test: $(tbench).vpp
-	./$(tbench).vpp
+	./$(TEST_BENCH).vpp
 	
 view: test
-	gtkwave $(tbench).vcd
+	gtkwave $(TEST_BENCH).vcd
 	
 clean:
-	rm -rf $(tbench).vpp
-	rm -rf $(tbench).vcd
+	rm -rf $(TEST_BENCH).vpp
+	rm -rf $(TEST_BENCH).vcd
 	

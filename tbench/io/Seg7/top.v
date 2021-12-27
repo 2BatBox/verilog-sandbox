@@ -2,7 +2,7 @@
 `include "lib/io/Seg7Async.v"
 `include "lib/io/Seg7Sync.v"
 
-module Seg7_tb();
+module top();
 
 parameter CLOCK_PERIOD = 1;
 integer i;
@@ -33,8 +33,8 @@ initial begin
 end
 
 initial begin
-	$dumpfile("Seg7_tb.vcd");
-	$dumpvars(0, Seg7_tb);
+	$dumpfile("Seg7.vcd");
+	$dumpvars(0, top);
 end
 
-endmodule // Seg7_tb
+endmodule // top

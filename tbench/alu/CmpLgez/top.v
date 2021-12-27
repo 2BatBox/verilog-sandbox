@@ -1,7 +1,7 @@
 `include "tbench/assert.v"
 `include "lib/alu/CmpLgez.v"
 
-module CmpLgez_tb();
+module top();
 
 localparam CLOCK_PERIOD = 1;
 localparam NMOS = 1;
@@ -71,8 +71,8 @@ initial begin
 end
 
 initial begin
-	$dumpfile("CmpLgez_tb.vcd");
-	$dumpvars(0, CmpLgez_tb);
+	$dumpfile("CmpLgez.vcd");
+	$dumpvars(0, top);
 end
 
-endmodule
+endmodule // top

@@ -1,6 +1,6 @@
 `include "tbench/assert.v"
 
-module Dummy();
+module top();
 
 parameter CLOCK_PERIOD = 1;
 
@@ -12,8 +12,8 @@ initial begin
 end
 
 initial begin
-	$dumpfile("Blank_tb.vcd");
-	$dumpvars(0, Dummy);
+	$dumpfile("Blank.vcd");
+	$dumpvars(0, top);
 end
 
-endmodule
+endmodule // top

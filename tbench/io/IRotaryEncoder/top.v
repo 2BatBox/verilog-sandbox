@@ -1,7 +1,7 @@
 `include "tbench/assert.v"
 `include "lib/io/IRotaryEncoder.v"
 
-module IRotaryEncoder_tb();
+module top();
 
 parameter CLOCK_PERIOD = 1;
 parameter COUNTER_WIDTH = 2;
@@ -162,9 +162,9 @@ initial begin
 end
 
 initial begin
-	$dumpfile("IRotaryEncoder_tb.vcd");
-	$dumpvars(0, IRotaryEncoder_tb);
+	$dumpfile("IRotaryEncoder.vcd");
+	$dumpvars(0, top);
 end
 
-endmodule
+endmodule // top
 
