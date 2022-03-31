@@ -2,6 +2,7 @@ CC = iverilog
 FLAGS = -Wall -g2005-sv
 INCLUDE = ../../../
 .DEFAULT_GOAL = test
+TOP = top.v
 
 $(tbench).vpp: $(TOP)
 	$(CC) -I$(INCLUDE) $(FLAGS) -o $(TEST_BENCH).vpp $(TOP)

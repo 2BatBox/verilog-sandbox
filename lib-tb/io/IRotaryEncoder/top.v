@@ -1,4 +1,4 @@
-`include "tbench/assert.v"
+`include "lib-tb/assert.v"
 `include "lib/io/IRotaryEncoder.v"
 
 module top();
