@@ -1,5 +1,10 @@
 `default_nettype none
 
+`include "../../../lib/io/IRotaryEncoder.v"
+`include "../../../lib/io/SyncChain.v"
+`include "../../../lib/io/Seg7Async.v"
+`include "../../../lib/io/Seg7Sync.v"
+
 module top(
 	input CLK,
 	input PMOD2, // Phase B
