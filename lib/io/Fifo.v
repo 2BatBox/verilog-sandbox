@@ -76,35 +76,36 @@ module Fifo
 	localparam lp_CNT_WIDTH = $clog2(p_CAPACITY + 1);
 	
 	
-	//////////////////////////////////
-	// Store side clock domain.
-	//////////////////////////////////
+	// Ring buffer.
+	reg [p_WIDTH - 1 : 0] ring_buffer[p_CAPACITY + 2];
 	
-	reg [lp_CNT_WIDTH - 1 : 0] wr_stored_gray = 0; // TODO: wrrst
+	
+	// Store side clock domain.
+	reg [lp_CNT_WIDTH - 1 : 0] wr_stored_gray;
 	wire [lp_CNT_WIDTH - 1 : 0] wr_stored_gray_next;
 	wire [lp_CNT_WIDTH - 1 : 0] wr_stored_bin;
 	wire [lp_CNT_WIDTH - 1 : 0] wr_stored_bin_next = wr_stored_bin + wr_stored_inc;
 	wire [lp_CNT_WIDTH - 1 : 0] wr_loaded_gray;	
 	wire [lp_CNT_WIDTH - 1 : 0] wr_loaded_bin;
 	wire [lp_CNT_WIDTH - 1 : 0] wr_items = wr_stored_bin - wr_loaded_bin;
-	wire wr_stored_inc = wrena & (~full);
+	wire wr_ready = wr_items < p_CAPACITY;
+	wire wr_stored_inc = wrena & wr_ready;
 	
-	assign full = ~(wr_items < p_CAPACITY);	
+	assign full = ~wr_ready;	
 
-	Bin2Gray #(.p_WIDTH(p_WIDTH)) wr_bin2gray_stored_next (wr_stored_bin_next, wr_stored_gray_next);
-	Gray2Bin #(.p_WIDTH(p_WIDTH)) wr_grey2bin_stored (wr_stored_gray, wr_stored_bin);
-	Gray2Bin #(.p_WIDTH(p_WIDTH)) wr_grey2bin_loaded (wr_loaded_gray, wr_loaded_bin);
+	Bin2Gray #(.p_WIDTH(lp_CNT_WIDTH)) wr_bin2gray_stored_next (wr_stored_bin_next, wr_stored_gray_next);
+	Gray2Bin #(.p_WIDTH(lp_CNT_WIDTH)) wr_grey2bin_stored (wr_stored_gray, wr_stored_bin);
+	Gray2Bin #(.p_WIDTH(lp_CNT_WIDTH)) wr_grey2bin_loaded (wr_loaded_gray, wr_loaded_bin);
 	
 	always@(posedge wrclk) begin
-		wr_stored_gray <= wr_stored_gray_next;
+		wr_stored_gray <= wrrst ? 0 : wr_stored_gray_next;
+		if(wr_stored_inc)
+			ring_buffer[wr_stored_bin] <= wrdata;
 	end
 	
 	
-	//////////////////////////////////
 	// Load side clock domain.
-	//////////////////////////////////
-	
-	reg [lp_CNT_WIDTH - 1 : 0] rd_loaded_gray = 0; // TODO: rdrst
+	reg [lp_CNT_WIDTH - 1 : 0] rd_loaded_gray;
 	wire [lp_CNT_WIDTH - 1 : 0] rd_loaded_gray_next;
 	wire [lp_CNT_WIDTH - 1 : 0] rd_loaded_bin;
 	wire [lp_CNT_WIDTH - 1 : 0] rd_loaded_bin_next = rd_loaded_bin + rd_loaded_inc;
@@ -112,23 +113,21 @@ module Fifo
 	wire [lp_CNT_WIDTH - 1 : 0] rd_stored_bin;
 	wire rd_loaded_inc = rdena & (~empty);
 	
+	assign rddata = ring_buffer[rd_loaded_bin];
 	assign empty = (rd_stored_bin == rd_loaded_bin);
 	
-	Bin2Gray #(.p_WIDTH(p_WIDTH)) rd_bin2gray_loaded_next (rd_loaded_bin_next, rd_loaded_gray_next);
-	Gray2Bin #(.p_WIDTH(p_WIDTH)) rd_grey2bin_loaded (rd_loaded_gray, rd_loaded_bin);
-	Gray2Bin #(.p_WIDTH(p_WIDTH)) rd_grey2bin_stored (rd_stored_gray, rd_stored_bin);
+	Bin2Gray #(.p_WIDTH(lp_CNT_WIDTH)) rd_bin2gray_loaded_next (rd_loaded_bin_next, rd_loaded_gray_next);
+	Gray2Bin #(.p_WIDTH(lp_CNT_WIDTH)) rd_grey2bin_loaded (rd_loaded_gray, rd_loaded_bin);
+	Gray2Bin #(.p_WIDTH(lp_CNT_WIDTH)) rd_grey2bin_stored (rd_stored_gray, rd_stored_bin);
 	
 	always@(posedge rdclk) begin
-		rd_loaded_gray <= rd_loaded_gray_next;
+		rd_loaded_gray <= rdrst ? 0 : rd_loaded_gray_next;
 	end
 	
 
-	//////////////////////////////////
 	// Clock domain crossing chains.
-	//////////////////////////////////
-
-	SyncChain #(.p_WIDTH(p_WIDTH), .p_DEPTH(lp_SYNC_CHAIN_DEPTH)) wr_sync_chain_loaded_gray(wrclk, wrrst, rd_loaded_gray, wr_loaded_gray); // TODO: wrrst
-	SyncChain #(.p_WIDTH(p_WIDTH), .p_DEPTH(lp_SYNC_CHAIN_DEPTH)) rd_sync_chain_stored_gray(rdclk, rdrst, wr_stored_gray, rd_stored_gray); // TODO: rdrst
+	SyncChain #(.p_WIDTH(lp_CNT_WIDTH), .p_DEPTH(lp_SYNC_CHAIN_DEPTH)) wr_sync_chain_loaded_gray(wrclk, wrrst, rd_loaded_gray, wr_loaded_gray); // TODO: wrrst
+	SyncChain #(.p_WIDTH(lp_CNT_WIDTH), .p_DEPTH(lp_SYNC_CHAIN_DEPTH)) rd_sync_chain_stored_gray(rdclk, rdrst, wr_stored_gray, rd_stored_gray); // TODO: rdrst
 
 
 endmodule // Fifo
