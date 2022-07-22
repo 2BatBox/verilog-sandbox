@@ -8,12 +8,12 @@
 
 module Gray2Bin
 	#(
-	parameter p_WIDTH = 1 // The data bus width. MUST BE greater than zero.
+		parameter p_WIDTH = 1 // The data bus width. MUST BE greater than zero.
 	)
 	
 	(
-	input wire  [p_WIDTH - 1 : 0] iwv_gray,
-	output wire [p_WIDTH - 1 : 0] owv_bin
+		input wire  [p_WIDTH - 1 : 0] iwv_gray,
+		output wire [p_WIDTH - 1 : 0] owv_bin
 	);
 	
 	genvar i;
@@ -50,12 +50,12 @@ endmodule // Gray2Bin
 
 module Bin2Gray
 	#(
-	parameter p_WIDTH = 1 // The data bus width. MUST BE greater than zero.
+		parameter p_WIDTH = 1 // The data bus width. MUST BE greater than zero.
 	)
 	
 	(
-	input wire [p_WIDTH - 1 : 0] iwv_bin,
-	output wire [p_WIDTH - 1 : 0] owv_gray
+		input wire [p_WIDTH - 1 : 0] iwv_bin,
+		output wire [p_WIDTH - 1 : 0] owv_gray
 	);
 	
 	assign owv_gray[p_WIDTH - 1] = iwv_bin[p_WIDTH - 1];
@@ -69,3 +69,39 @@ module Bin2Gray
 	
 endmodule // Bin2Gray
 
+
+
+/////////////////////////////////////////////////////
+// 
+// Gray synchronous incremental counter.
+//
+/////////////////////////////////////////////////////
+
+module GrayIncCounter
+	#(
+		parameter p_WIDTH = 1 // The data bus width. MUST BE greater than zero.
+	)
+	
+	(
+		input wire iw_clk,
+		input wire iw_reset,
+		input wire iw_inc,
+		output wire [p_WIDTH - 1 : 0] owv_bin,
+		output wire [p_WIDTH - 1 : 0] owv_gray
+	);
+	
+	reg [p_WIDTH - 1 : 0] rv_gray;
+	wire [p_WIDTH - 1 : 0] wv_gray_next;
+	wire [p_WIDTH - 1 : 0] wv_bin_next = owv_bin + iw_inc;
+	
+	assign owv_gray = rv_gray;
+	
+	Bin2Gray #(.p_WIDTH(p_WIDTH)) bin2gray (wv_bin_next, wv_gray_next);
+	Gray2Bin #(.p_WIDTH(p_WIDTH)) grey2bin (rv_gray, owv_bin);
+	
+	always@(posedge iw_clk) begin
+		rv_gray <= iw_reset ? 0 : wv_gray_next;
+	end
+	
+endmodule // GrayIncCounter
+	

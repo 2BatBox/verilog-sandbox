@@ -1,7 +1,7 @@
 `include "lib/alu/Gray.v"
 `include "lib/io/SyncChain.v"
 
-/////////////////////////////////////////////////////
+//=====================================-------------------------------
 //
 //  Asynchronous FIFO
 //  1. Overview
@@ -29,7 +29,7 @@
 //  • full - full flag
 //  • empty - empty flag
 // 
-/////////////////////////////////////////////////////
+//=====================================-------------------------------
 
 module Fifo
 	#(
@@ -76,58 +76,102 @@ module Fifo
 	localparam lp_CNT_WIDTH = $clog2(p_CAPACITY + 1);
 	
 	
+	//=====================================
 	// Ring buffer.
-	reg [p_WIDTH - 1 : 0] ring_buffer[p_CAPACITY + 2];
+	//=====================================
+	reg [p_WIDTH - 1 : 0] block_ram[0 : p_CAPACITY];
 	
 	
-	// Store side clock domain.
-	reg [lp_CNT_WIDTH - 1 : 0] wr_stored_gray;
-	wire [lp_CNT_WIDTH - 1 : 0] wr_stored_gray_next;
+	//=====================================
+	// Writing side.
+	//=====================================
+	
+	// 'stored' counter.
+	wire [lp_CNT_WIDTH - 1 : 0] wr_stored_gray;
 	wire [lp_CNT_WIDTH - 1 : 0] wr_stored_bin;
-	wire [lp_CNT_WIDTH - 1 : 0] wr_stored_bin_next = wr_stored_bin + wr_stored_inc;
+	
+	// The writing side view of 'loaded' counter.
 	wire [lp_CNT_WIDTH - 1 : 0] wr_loaded_gray;	
 	wire [lp_CNT_WIDTH - 1 : 0] wr_loaded_bin;
-	wire [lp_CNT_WIDTH - 1 : 0] wr_items = wr_stored_bin - wr_loaded_bin;
-	wire wr_ready = wr_items < p_CAPACITY;
-	wire wr_stored_inc = wrena & wr_ready;
 	
-	assign full = ~wr_ready;	
-
-	Bin2Gray #(.p_WIDTH(lp_CNT_WIDTH)) wr_bin2gray_stored_next (wr_stored_bin_next, wr_stored_gray_next);
-	Gray2Bin #(.p_WIDTH(lp_CNT_WIDTH)) wr_grey2bin_stored (wr_stored_gray, wr_stored_bin);
+	wire [lp_CNT_WIDTH - 1 : 0] wr_items = wr_stored_bin - wr_loaded_bin;
+	
+	wire wr_rdrst;
+	wire wr_full = ~(wr_items < p_CAPACITY);
+	
+	assign full = wr_full | wrrst | wr_rdrst;
+	
+	wire wr_stored_inc = ~full & wrena;
+	
+	GrayIncCounter #(.p_WIDTH(lp_CNT_WIDTH))
+		wr_gray_cnt_stored
+		(
+			.iw_clk(wrclk),
+			.iw_reset(wrrst | wr_rdrst),
+			.iw_inc(wr_stored_inc),
+			.owv_bin(wr_stored_bin),
+			.owv_gray(wr_stored_gray)
+		);
+	
 	Gray2Bin #(.p_WIDTH(lp_CNT_WIDTH)) wr_grey2bin_loaded (wr_loaded_gray, wr_loaded_bin);
 	
 	always@(posedge wrclk) begin
-		wr_stored_gray <= wrrst ? 0 : wr_stored_gray_next;
 		if(wr_stored_inc)
-			ring_buffer[wr_stored_bin] <= wrdata;
+			block_ram[wr_stored_bin] <= wrdata;
 	end
 	
 	
-	// Load side clock domain.
-	reg [lp_CNT_WIDTH - 1 : 0] rd_loaded_gray;
-	wire [lp_CNT_WIDTH - 1 : 0] rd_loaded_gray_next;
+	//=====================================
+	// Reading side.
+	//=====================================
+	
+	// 'loaded' counter.
+	wire [lp_CNT_WIDTH - 1 : 0] rd_loaded_gray;
 	wire [lp_CNT_WIDTH - 1 : 0] rd_loaded_bin;
-	wire [lp_CNT_WIDTH - 1 : 0] rd_loaded_bin_next = rd_loaded_bin + rd_loaded_inc;
+	
+	// The reading side view of 'stored' counter.
 	wire [lp_CNT_WIDTH - 1 : 0] rd_stored_gray;	
 	wire [lp_CNT_WIDTH - 1 : 0] rd_stored_bin;
+	
+	wire rd_wrrst;
+	wire rd_empty = (rd_stored_bin == rd_loaded_bin); 
 	wire rd_loaded_inc = rdena & (~empty);
 	
-	assign rddata = ring_buffer[rd_loaded_bin];
-	assign empty = (rd_stored_bin == rd_loaded_bin);
+	assign rddata = block_ram[rd_loaded_bin];
+	assign empty = rd_empty | rdrst | rd_wrrst;
 	
-	Bin2Gray #(.p_WIDTH(lp_CNT_WIDTH)) rd_bin2gray_loaded_next (rd_loaded_bin_next, rd_loaded_gray_next);
-	Gray2Bin #(.p_WIDTH(lp_CNT_WIDTH)) rd_grey2bin_loaded (rd_loaded_gray, rd_loaded_bin);
+	GrayIncCounter #(.p_WIDTH(lp_CNT_WIDTH))
+		rd_gray_cnt_loaded
+		(
+			.iw_clk(rdclk),
+			.iw_reset(rdrst | rd_wrrst),
+			.iw_inc(rd_loaded_inc),
+			.owv_bin(rd_loaded_bin),
+			.owv_gray(rd_loaded_gray)
+		);
+	
 	Gray2Bin #(.p_WIDTH(lp_CNT_WIDTH)) rd_grey2bin_stored (rd_stored_gray, rd_stored_bin);
 	
-	always@(posedge rdclk) begin
-		rd_loaded_gray <= rdrst ? 0 : rd_loaded_gray_next;
-	end
 	
-
+	//=====================================
 	// Clock domain crossing chains.
-	SyncChain #(.p_WIDTH(lp_CNT_WIDTH), .p_DEPTH(lp_SYNC_CHAIN_DEPTH)) wr_sync_chain_loaded_gray(wrclk, wrrst, rd_loaded_gray, wr_loaded_gray); // TODO: wrrst
-	SyncChain #(.p_WIDTH(lp_CNT_WIDTH), .p_DEPTH(lp_SYNC_CHAIN_DEPTH)) rd_sync_chain_stored_gray(rdclk, rdrst, wr_stored_gray, rd_stored_gray); // TODO: rdrst
+	//=====================================
+	SyncChain #(.p_WIDTH(lp_CNT_WIDTH + 1), .p_DEPTH(lp_SYNC_CHAIN_DEPTH))
+		wr_sync_chain_loaded_gray
+		(
+			wrclk,
+			{ rdrst, rd_loaded_gray },
+			{ wr_rdrst, wr_loaded_gray }
+		);
+		
+	SyncChain #(.p_WIDTH(lp_CNT_WIDTH + 1), .p_DEPTH(lp_SYNC_CHAIN_DEPTH))
+		rd_sync_chain_stored_gray
+		(
+			rdclk,
+			{ wrrst, wr_stored_gray },
+			{ rd_wrrst, rd_stored_gray }
+		);
 
 
 endmodule // Fifo
+
