@@ -74,12 +74,12 @@ module Fifo
 	
 	localparam lp_SYNC_CHAIN_DEPTH = 2;
 	localparam lp_CNT_WIDTH = $clog2(p_CAPACITY + 1);
-	
+	localparam lp_CAPACITY_MEM = 1 << lp_CNT_WIDTH;
 	
 	//=====================================
 	// Ring buffer.
 	//=====================================
-	reg [p_WIDTH - 1 : 0] block_ram[0 : p_CAPACITY];
+	reg [p_WIDTH - 1 : 0] block_ram[lp_CAPACITY_MEM];
 	
 	
 	//=====================================
