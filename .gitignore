@@ -7,3 +7,4 @@ local*
 *.json
 *.log
 *.blif
+*.txt
