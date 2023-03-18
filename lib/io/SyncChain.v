@@ -19,23 +19,19 @@ module SyncChain
 	
 	reg [p_WIDTH - 1 : 0] rvv_chain[0 : p_DEPTH];
 	
-	
-	// TODO: wouldn't sync resetting be some better alternative?
-	initial begin
-		integer i;
-		for(i = 0; i < p_DEPTH; i = i + 1) begin : init
-			rvv_chain[i] = p_INIT_VALUE;
-		end	
-	end
-
 	assign owv_output = rvv_chain[p_DEPTH - 1];
 	
-	always@(posedge iw_clk) begin
-		rvv_chain[0] <= iwv_input;
-	end
-	
-	// TODO: are there any differences in generating many always blocks with the same trigger condition and generating just one?
+	// Generating the chain items initialization.
 	genvar i;
+	generate
+		for(i = 0; i < p_DEPTH; i = i + 1) begin
+			initial begin
+				rvv_chain[i] = p_INIT_VALUE;
+			end
+		end	
+	endgenerate
+	
+	// Generating the chain items shifting.
 	generate
 		for(i = 1; i < p_DEPTH; i = i + 1) begin : gen_for
 			always@(posedge iw_clk) begin
@@ -43,6 +39,12 @@ module SyncChain
 			end
 		end	
 	endgenerate
+
+	always@(posedge iw_clk) begin
+		rvv_chain[0] <= iwv_input;
+	end
+	
+	
 
 endmodule // SyncChain
 

@@ -1,19 +1,13 @@
 `default_nettype none
 
+`include "../../../lib/io/SyncChain.v"
+
 module top(
 	input CLK,
 	input SW1,
-	output LED2
+	output LED1,
 	);
 
-reg r_led2 = 1'b0;
-
-assign LED2 = r_led2;
-
-always @(posedge CLK) begin
-	if(CLK & SW1) begin
-		r_led2 <= 1'b1;
-	end
-end
+SyncChain sync0(CLK, SW1, LED1);
 
 endmodule

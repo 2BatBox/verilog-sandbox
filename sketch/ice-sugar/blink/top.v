@@ -13,7 +13,7 @@ always @(posedge CLK)
   counter <= counter + 1;
 
 assign LED_G = counter[N];
-assign LED_R = counter[N];
-assign LED_B = counter[N];
+assign LED_R = counter[N - 1];
+assign LED_B = counter[N - 2];
 
 endmodule // top
