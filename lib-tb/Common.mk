@@ -5,7 +5,7 @@ INCLUDE = ../../../
 TOP = top.v
 
 $(tbench).vpp: $(TOP)
-	$(CC) -I$(INCLUDE) $(FLAGS) -o $(TEST_BENCH).vpp $(TOP)
+	$(CC) -I$(INCLUDE) $(FLAGS) -o $(TEST_BENCH).vpp $(TOP) -pRECURSIVE_MOD_LIMIT=64
 	
 test: $(tbench).vpp
 	./$(TEST_BENCH).vpp
