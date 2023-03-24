@@ -94,8 +94,8 @@ module blank
 //	output TDO, // FPGA -> CPLD (data out)
 
 	// GPIO
-//	inout[35:0] GPIO_0, // GPIO Connection 0
-//	inout[35:0] GPIO_1  // GPIO Connection 1
+//	input[35:0] GPIO_0, // GPIO Connection 0
+//	input[35:0] GPIO_1  // GPIO Connection 1
 );
 
 assign LEDR = SW;

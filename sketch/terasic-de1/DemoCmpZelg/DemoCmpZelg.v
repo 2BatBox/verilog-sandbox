@@ -3,18 +3,18 @@ module DemoCmpZelg
 	//Clock Input
 //	input [1:0] CLOCK_24,  // 24 MHz
 //	input [1:0] CLOCK_27,  // 27 MHz
-	input       CLOCK_50,  // 50 MHz
+//	input       CLOCK_50,  // 50 MHz
 //	input       EXT_CLOCK, // External Clock
 
 	// Push Button
-	input [3:0] BUTTONS, // Active - LOW
+//	input [3:0] BUTTONS, // Active - LOW
 
 	// DPDT Switch
-	input [9:0] SW, // Active - HIGH
+//	input [9:0] SW, // Active - HIGH
 	
 	// LED, Active - HIGH
-	output [9:0] LEDR,
-	output [7:0] LEDG
+//	output [9:0] LEDR,
+	output [7:0] LEDG,
 
 
 	//7-SEG Dispaly, Active - LOW
@@ -94,13 +94,17 @@ module DemoCmpZelg
 //	output TDO, // FPGA -> CPLD (data out)
 
 	// GPIO
-//	inout[35:0] GPIO_0, // GPIO Connection 0
-//	inout[35:0] GPIO_1  // GPIO Connection 1
+	input[35:0] GPIO_0, // GPIO Connection 0
+	input[35:0] GPIO_1  // GPIO Connection 1
 );
 
-//assign LEDR = SW;
-//assign LEDG = {BUTTONS, BUTTONS};
+wire [31:0] wv_x = GPIO_0[31:0];
+wire [31:0] wv_y = GPIO_1[31:0];
 
-CmpZelg #(.p_WIDTH(5)) cmp0(SW[9:5], SW[4:0], LEDR[3], LEDR[2], LEDR[1], LEDR[0]);
+assign LEDG[3] = wv_x == wv_y;
+assign LEDG[2] = wv_x > wv_y;
+assign LEDG[1] = wv_x < wv_y;
+
+//CmpZelg #(.p_WIDTH(32)) cmp0(.iv_x(wv_x), .iv_y(wv_y), .o_zero(LEDG[3]), .o_equal(LEDG[2]), .o_less(LEDG[1]), .o_greater(LEDG[0]));
 
 endmodule
