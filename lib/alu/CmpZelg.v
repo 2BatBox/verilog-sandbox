@@ -1,6 +1,8 @@
 
 //===================================================
-// CmpZelgCompressorCell
+//
+// __CmpZelgCompressorCell
+//
 //===================================================
 //
 // 1. iX < iY        ->  oX < oY
@@ -28,7 +30,7 @@
 // | 11 | 10 | 1 | 0 |
 // | 11 | 11 | 1 | 1 |
 // -------------------
-module CmpZelgCompressorCell
+module __CmpZelgCompressorCell
 	(
 	input [1:0] iv_x,
 	input [1:0] iv_y,
@@ -39,14 +41,19 @@ module CmpZelgCompressorCell
 assign o_x = (iv_x[0] & ~iv_y[1]) | (iv_x[1] & ~iv_y[0]) | (iv_x[1] & iv_x[0]) | (iv_x[1] & ~iv_y[1]);
 assign o_y = (iv_y[1] & iv_y[0]) | (~iv_x[0] & iv_y[1]) | (~iv_x[1] & iv_y[0]) | (~iv_x[1] & iv_y[1]);
 
-endmodule // CmpZelgCompressorCell
+endmodule // __CmpZelgCompressorCell
 
 
 
 //===================================================
-// CmpZelgCompressor
+//
+// __CmpZelgCompressor
+//
+// Size  : O(N)
+// Depth : O(log(N))
+//
 //===================================================
-module CmpZelgCompressor
+module __CmpZelgCompressor
 	#(
 	parameter p_WIDTH = 2 // MUST BE greater than zero.
 	)
@@ -68,11 +75,7 @@ generate
 		assign o_x = iv_x[0];
 		assign o_y = iv_y[0];
 		
-	end else if(p_WIDTH == 2) begin
-	
-		CmpZelgCompressorCell cell_gen_0(iv_x, iv_y, o_x, o_y);
-	
-	end else if(p_WIDTH > 2) begin
+	end else begin
 	
 		genvar p;
 	
@@ -80,7 +83,8 @@ generate
 		wire [lp_wires - 1 : 0] wv_y;
 	
 		for(p = 0; p < lp_pairs; p = p + 1) begin : gen_cells
-			CmpZelgCompressorCell cell_gen_1(iv_x[p * 2 + 1 : p * 2], iv_y[p * 2 + 1 : p * 2], wv_x[p], wv_y[p]);
+			localparam idx = p * 2;
+			__CmpZelgCompressorCell gen_cells_0(iv_x[idx + 1 : idx], iv_y[idx + 1 : idx], wv_x[p], wv_y[p]);
 		end
 		
 		if(lp_tail) begin
@@ -88,13 +92,13 @@ generate
 			assign wv_y[lp_wires - 1] = iv_y[p_WIDTH - 1];
 		end
 		
-		CmpZelgCompressor #(.p_WIDTH(lp_wires)) cmp_gen_0(wv_x, wv_y, o_x, o_y);
+		__CmpZelgCompressor #(.p_WIDTH(lp_wires)) cmp_gen_0(wv_x, wv_y, o_x, o_y);
 		
 	end
 
 endgenerate
 
-endmodule // CmpZelgCompressor
+endmodule // __CmpZelgCompressor
 
 
 //===================================================
@@ -121,7 +125,7 @@ module CmpZelg
 wire w_x;
 wire w_y;
 
-CmpZelgCompressor #(.p_WIDTH(p_WIDTH)) cmp0(iv_x, iv_y, w_x, w_y);
+__CmpZelgCompressor #(.p_WIDTH(p_WIDTH)) cmp0(iv_x, iv_y, w_x, w_y);
 
 assign o_zero = ~w_x & ~w_y;
 assign o_equal = ~(w_x ^ w_y);

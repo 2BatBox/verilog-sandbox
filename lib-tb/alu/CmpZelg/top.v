@@ -3,7 +3,6 @@
 
 module top_generic #(parameter p_ARG_WIDTH = 1) (output wo_complete);
 
-localparam CLOCK_PERIOD = 1;
 localparam ARG_RANGE = $pow(2, p_ARG_WIDTH);
 
 reg [p_ARG_WIDTH - 1:0] rv_x = 0;
@@ -30,7 +29,6 @@ initial begin
 			rv_y = j;
 			#1;
 
-//			$display("| %b | %b | %b | %b |", rv_x, rv_y, w_x, w_y);
 //			$display("| %b | %b | Z=%b E=%b L=%b G=%b |", rv_x, rv_y, w_zero, w_equal, w_less, w_greater);
 			
 			if(rv_x > rv_y) begin
@@ -74,7 +72,7 @@ endmodule // top_generic
 
 module top();
 
-localparam WIDTH_MAX = 2;
+localparam WIDTH_MAX = 7;
 
 wire [WIDTH_MAX-1 : 0] rv_complete;
 
@@ -93,8 +91,8 @@ initial begin
 end
 
 initial begin
-	$dumpfile("CmpZelg.vcd");
-	$dumpvars(0, top);
+//	$dumpfile("CmpZelg.vcd");
+//	$dumpvars(0, top);
 end
 
 endmodule // top
