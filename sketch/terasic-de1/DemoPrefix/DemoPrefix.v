@@ -1,27 +1,27 @@
 module DemoPrefix
 (
 	//Clock Input
-//	input [1:0] CLOCK_24,  // 24 MHz
-//	input [1:0] CLOCK_27,  // 27 MHz
-//	input       CLOCK_50,  // 50 MHz
+	input [1:0] CLOCK_24,  // 24 MHz
+	input [1:0] CLOCK_27,  // 27 MHz
+	input       CLOCK_50,  // 50 MHz
 //	input       EXT_CLOCK, // External Clock
 
 	// Push Button
-//	input [3:0] BUTTONS, // Active - LOW
+	input [3:0] BUTTONS, // Active - LOW
 
 	// DPDT Switch
 	input [9:0] SW, // Active - HIGH
 	
 	// LED, Active - HIGH
-	output [9:0] LEDR
-//	output [7:0] LEDG
+	output [9:0] LEDR,
+	output [7:0] LEDG,
 
 
 	//7-SEG Dispaly, Active - LOW
-//	output [6:0] HEX0,
-//	output [6:0] HEX1,
-//	output [6:0] HEX2,
-//	output [6:0] HEX3,
+	output [6:0] HEX0,
+	output [6:0] HEX1,
+	output [6:0] HEX2,
+	output [6:0] HEX3,
 
 	// UART
 //	output UART_TXD,
@@ -88,16 +88,26 @@ module DemoPrefix
 //	input PS2_CLK,
 
 	// USB JTAG link
-//	input  TDI, // CPLD -> FPGA (data in)
+//	input  TDI, // CPLD -> FPGA (data in)128
 //	input  TCK, // CPLD -> FPGA (clk)
 //	input  TCS, // CPLD -> FPGA (CS)
 //	output TDO, // FPGA -> CPLD (data out)
 
 	// GPIO
-//	input[35:0] GPIO_0, // GPIO Connection 0
-//	input[35:0] GPIO_1  // GPIO Connection 1
+	input[35:0] GPIO_0, // GPIO Connection 0
+	input[35:0] GPIO_1  // GPIO Connection 1
 );
 
-PrefixTree#(.p_WIDTH(10)) ref0(SW, LEDR);
+localparam WIDTH = 8;
+
+wire [WIDTH-1:0] rv_x = SW[7:0];
+wire [WIDTH-1:0] rv_y = {WIDTH{1'b0}};
+wire carry = !BUTTONS[0];
+wire [WIDTH:0] sum;
+
+assign LEDR[9:0] = sum;
+
+//assign sum = {1'b0, rv_x} + {1'b0, rv_y} + carry;
+AddrCarryLookAhead #(.p_WIDTH(WIDTH)) ref0(.iwv_x(rv_x), .iwv_y(rv_y), .iw_carry(carry), .owv_output(sum));
 
 endmodule
