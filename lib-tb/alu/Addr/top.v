@@ -16,7 +16,7 @@ wire [SUM_WIDTH-1:0] wv_output;
 
 wire [SUM_WIDTH-1:0] wv_output_carry;
 wire [SUM_WIDTH-1:0] wv_output_sum;
-wire [SUM_WIDTH-1:0] wv_output_cs;
+wire [p_ARG_WIDTH-1:0] wv_output_cs;
 
 assign wo_complete = r_complete;
 
@@ -35,15 +35,14 @@ integer y;
 			
 			$display("  %b X", rv_x);
 			$display("  %b Y", rv_y);
-			$display(" %b  Carry", wv_output_carry);
-			$display(" %b  Summ", wv_output_sum);
+			$display(" %b Carry", wv_output_carry);
+			$display(" %b Summ", wv_output_sum);
 			$display(" %b  CS", wv_output_cs);
-			$display(" %b  X+Y", wv_output_reference);
-			$display(" %b  X+Y", wv_output);
+			$display(" %b X+Y ref", wv_output_reference);
+			$display(" %b X+Y", wv_output);
 			
 			$display("");
-			
-//			`assert_eq(wv_output_reference, wv_output);
+			`assert_eq(wv_output_reference, wv_output);
 			
 
 		

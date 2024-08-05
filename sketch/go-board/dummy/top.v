@@ -1,7 +1,5 @@
 `default_nettype none
 
-`include "../../../lib/alu/CmpZelg.v"
-
 module top(
 	input SW1,
 	input SW2,
@@ -14,14 +12,9 @@ module top(
 	output LED4,
 	);
 	
-localparam WIDTH = 2;
-
-//assign LED1 = rv_x > rv_y;
-//assign LED3 = rv_x < rv_y;
-
-wire [WIDTH - 1 : 0] wv_x  = {SW1, SW2};
-wire [WIDTH - 1 : 0] wv_y  = {SW3, SW4};
-
-CmpZelg #(.p_WIDTH(WIDTH)) cmp0(wv_x, wv_y, LED1, LED2, LED3, LED4);
+assign LED1 = SW1;
+assign LED2 = SW2;
+assign LED3 = SW3;
+assign LED4 = SW4;
 
 endmodule

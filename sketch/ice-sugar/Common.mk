@@ -10,7 +10,7 @@ $(target).blif: $(source)
 	yosys -p "synth_ice40 -blif $(target).blif" -q -l $(target).log $(source)
 	
 $(target).txt: $(target).blif
-	arachne-pnr --device 5k --package $(package) -p ../$(target).pcf -o $(target).txt --post-pack-verilog $(target).v $(target).blif
+	arachne-pnr --device 5k --package $(package) -p top.pcf -o $(target).txt --post-pack-verilog $(target).v $(target).blif
 	
 $(target).bin: $(target).txt
 	icepack $(target).txt $(target).bin
@@ -18,10 +18,10 @@ $(target).bin: $(target).txt
 build: $(target).bin
 
 prog: build
-	../icesprog $(target).bin  # as root ?
+	../icesprog $(target).bin
 	
 ta: $(target).txt
-	icetime -mt -p ../$(target).pcf -P $(package) -d $(device) $(target).txt
+	icetime -mt -p top.pcf -P $(package) -d $(device) $(target).txt
 	
 show:
 	yosys -p 'read_verilog top.v; show top'

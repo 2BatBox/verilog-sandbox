@@ -11,13 +11,6 @@
 // 1 0 - p  Propagate
 // 1 1 - g  Generate
 //
-// Output carry Statuses
-// C S
-// -----------------
-// 0 0 - k  Kill
-// 0 1 - p  Propagate
-// 1 1 - g  Generate
-//
 //             | k p g <- Input
 //           --|-------
 // State -> *k | k k g
@@ -128,17 +121,35 @@ module AddrCarryLookAhead
 	
 localparam SUM_WIDTH = p_WIDTH + 1;
 	
-wire [SUM_WIDTH-1:0] wv_symbols_carry = {iwv_x & iwv_y, iw_carry};
-wire [SUM_WIDTH-1:0] wv_symbols_sum = {1'b0, iwv_x ^ iwv_y};
+wire [SUM_WIDTH-1:0] wv_carry_init = {iwv_x & iwv_y, iw_carry};
+wire [SUM_WIDTH-1:0] wv_sum_init = {1'b0, iwv_x ^ iwv_y};
 
-wire [SUM_WIDTH-1:0] wv_carry_statuses;
+wire [p_WIDTH-1:0] wv_carry;
+wire [p_WIDTH-1:0] wv_sum;
 
-__AddrCarryLookAheadCSResolver #(.p_WIDTH(SUM_WIDTH)) resolver(wv_symbols_carry, wv_symbols_sum, wv_carry_statuses);
+wire [p_WIDTH-1:0] wv_carry_statuses;
+
+assign wv_carry[p_WIDTH-1:1] = wv_carry_init[p_WIDTH-1:1];
+assign wv_sum[p_WIDTH-1:1] = wv_sum_init[p_WIDTH-1:1];
+
+
+// Setting the initial state 'Kill'.
+__AddrCarryLookAheadCSPFunction pref(
+	.iwv_state( { 1'b0, 1'b0 } ),
+	.iwv_input( { wv_carry_init[0], wv_sum_init[0] } ),
+	.owv_state_next( { wv_carry[0], wv_sum[0] } )
+	);
+
+__AddrCarryLookAheadCSResolver #(.p_WIDTH(p_WIDTH)) resolver(
+	.iwv_carry(wv_carry),
+	.iwv_sum(wv_sum),
+	.owv_out(wv_carry_statuses)
+	);
 	
-assign owv_output = 1'b0;//wv_symbols_carry[CARRY_STATUSES_WIDTH-1:1] ^ wv_symbols_sum[CARRY_STATUSES_WIDTH-1:1] ^ wv_carry_statuses[CARRY_STATUSES_WIDTH-2:0];
+assign owv_output = wv_carry_init ^ wv_sum_init ^ {wv_carry_statuses, 1'b0};
 
-assign owv_carry = wv_symbols_carry;
-assign owv_sum = wv_symbols_sum;
+assign owv_carry = wv_carry_init;
+assign owv_sum = wv_sum_init;
 assign owv_cs = wv_carry_statuses;
 
 endmodule // AddrCarryLookAhead
