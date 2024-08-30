@@ -11,7 +11,7 @@ module blank
 // --------------------------
 // Push Button
 // --------------------------
-//[BUTTONS]	input [3:0] BUTTONS, // Active - LOW
+//[KEYS]	input [3:0] KEYS, // Active - LOW
 
 // --------------------------
 // DPDT Switch
@@ -21,16 +21,16 @@ module blank
 // --------------------------
 // LED, Active - HIGH
 // --------------------------
-//[LED_R]	output [9:0] LEDR,
-//[LED_G]	output [7:0] LEDG,
+//[LEDR]	output [9:0] LEDR,
+//[LEDG]	output [7:0] LEDG,
 
 // --------------------------
 // 7-SEG Dispaly, Active - LOW
 // --------------------------
-//[7SEG_0]	output [6:0] HEX0,
-//[7SEG_1]	output [6:0] HEX1,
-//[7SEG_2]	output [6:0] HEX2,
-//[7SEG_3]	output [6:0] HEX3,
+//[HEX0]	output [6:0] HEX0,
+//[HEX1]	output [6:0] HEX1,
+//[HEX2]	output [6:0] HEX2,
+//[HEX3]	output [6:0] HEX3,
 
 // --------------------------
 // UART

@@ -1,6 +1,5 @@
 `include "lib-tb/assert.v"
-`include "lib/io/Seg7Async.v"
-`include "lib/io/Seg7Sync.v"
+`include "lib/io/Seg7.v"
 
 module top();
 
@@ -8,17 +7,17 @@ parameter CLOCK_PERIOD = 1;
 integer i;
 
 reg r_clk = 0;
-reg [3:0] rv_input = 0;
-wire [6:0] wv_output_sync;
-wire [6:0] wv_output_async;
+reg [3:0] rv_input;
+wire [6:0] wv_output;
+wire [6:0] wv_output_alt;
 
 // setup clock
 always begin
 	#CLOCK_PERIOD r_clk = ~r_clk;
 end
 
-Seg7Sync uut_sync(r_clk, rv_input, wv_output_sync);
-Seg7Async uut_async(rv_input, wv_output_async);
+Seg7 uut(rv_input, wv_output);
+Seg7Alt uut_alt(rv_input, wv_output_alt);
 
 initial begin
 
@@ -26,7 +25,7 @@ initial begin
 		@(negedge r_clk);
 		rv_input <= i;
 		@(negedge r_clk);
-		`assert_eq(wv_output_sync, wv_output_async);
+		`assert_eq(wv_output, wv_output_alt);
 	end
 
 	`assert_pass;

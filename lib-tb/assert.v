@@ -10,6 +10,7 @@
 
 `define assert_eq(signal, value) begin \
 		if ((signal) !== (value)) begin \
+			$display(signal, " != ", value); \
 			$display("%s:%d Module '%m' : ASSERTION FAILED signal != value", `__FILE__, `__LINE__); \
 			$display("\033[1;31mFAIL\033[0m"); \
 			$finish; \
@@ -18,6 +19,7 @@
 
 `define assert_neq(signal, value) begin \
 		if ((signal) === (value)) begin \
+			$display(signal, " === ", value); \
 			$display("%s:%d Module '%m' : ASSERTION FAILED signal == value", `__FILE__, `__LINE__); \
 			$display("\033[1;31mFAIL\033[0m"); \
 			$finish; \
