@@ -1,5 +1,5 @@
 `include "lib-tb/assert.v"
-`include "lib/signal/EdgeDetector.v"
+`include "lib/io/EdgeDetector.v"
 
 module top();
 

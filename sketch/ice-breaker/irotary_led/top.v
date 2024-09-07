@@ -1,4 +1,4 @@
-`include "../../../lib/io/IRotaryEncoder.v"
+`include "../../../lib/driver/IRotaryEncoder.v"
 `include "../../../lib/io/Debouncer.v"
 `include "../../../lib/io/SyncChain.v"
 
