@@ -20,14 +20,14 @@ module top(
 	output VGA_B2,
 	);
 	
-	localparam LP_CNT_WIDTH = 10;
+	localparam CNT_WIDTH = 10;
 	
 	reg [31 : 0] ra_time = 0;
 	
 	wire visible;
 	
-	wire [LP_CNT_WIDTH - 1 : 0] x;
-	wire [LP_CNT_WIDTH - 1 : 0] y;
+	wire [CNT_WIDTH - 1 : 0] x;
+	wire [CNT_WIDTH - 1 : 0] y;
 	
 	wire [2:0] out_r = { VGA_R2, VGA_R1, VGA_R0 };
 	wire [2:0] out_g = { VGA_G2, VGA_G1, VGA_G0 };
@@ -59,17 +59,17 @@ module top(
 	
 	VgaAreaTracker
 	#(
-		.P_CNT_WIDTH(LP_CNT_WIDTH),
+		.CNT_WIDTH(CNT_WIDTH),
 		
-		.P_H_VISIBLE(640),
-		.P_H_BACK_PORCH(50),
-		.P_H_SYNC(92),
-		.P_H_FRONT_PORCH(18),
+		.H_VISIBLE(640),
+		.H_BACK_PORCH(50),
+		.H_SYNC(92),
+		.H_FRONT_PORCH(18),
 
-		.P_V_VISIBLE(480),
-		.P_V_BACK_PORCH(33),
-		.P_V_SYNC(2),
-		.P_V_FRONT_PORCH(10)
+		.V_VISIBLE(480),
+		.V_BACK_PORCH(33),
+		.V_SYNC(2),
+		.V_FRONT_PORCH(10)
 	)
 	
 	uut

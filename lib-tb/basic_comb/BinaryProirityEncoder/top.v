@@ -13,7 +13,7 @@ reg [DECODED_WIDTH-1:0] rv_input;
 wire [ADDR_WIDTH-1:0] wv_output_addr;
 wire w_output_enable;
 
-BinaryProirityEncoder #(.p_WIDTH(DECODED_WIDTH)) enc(rv_input, w_output_enable, wv_output_addr);
+BinaryProirityEncoder #(.WIDTH(DECODED_WIDTH)) enc(rv_input, w_output_enable, wv_output_addr);
 
 initial begin
 

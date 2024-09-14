@@ -1,5 +1,5 @@
 `include "lib-tb/assert.v"
-`include "lib/io/Seg7.v"
+`include "lib/driver/Seg7.v"
 
 module top();
 

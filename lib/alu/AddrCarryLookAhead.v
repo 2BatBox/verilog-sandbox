@@ -51,31 +51,31 @@ endmodule // __AddrCarryLookAheadCSPFunction
 //===================================================
 module __AddrCarryLookAheadCSResolver
 	#(
-	parameter p_WIDTH = 2, // MUST BE greater than zero.
-	parameter p_BLOCK_SIZE = 1   // MUST BE greater than zero.
+	parameter WIDTH = 2, // MUST BE greater than zero.
+	parameter BLOCK_SIZE = 1   // MUST BE greater than zero.
 	)
 	(
-	input [p_WIDTH-1:0] iwv_carry,   // The input value of iwv_carry[0] MUST be 1'b0.
-	input [p_WIDTH-1:0] iwv_sum,     // The input value of iwv_sum[0] MUST be 1'b0.
-	output [p_WIDTH-1:0] owv_out     
+	input [WIDTH-1:0] iwv_carry,   // The input value of iwv_carry[0] MUST be 1'b0.
+	input [WIDTH-1:0] iwv_sum,     // The input value of iwv_sum[0] MUST be 1'b0.
+	output [WIDTH-1:0] owv_out     
 	);
 	
 generate
 
 	genvar i;
 
-	if(p_BLOCK_SIZE >= p_WIDTH) begin
+	if(BLOCK_SIZE >= WIDTH) begin
 	
 		assign owv_out = iwv_carry;
 		
 	end else begin
 	
-		wire [p_WIDTH-1:0] wv_next_carry;
-		wire [p_WIDTH-1:0] wv_next_sum;
+		wire [WIDTH-1:0] wv_next_carry;
+		wire [WIDTH-1:0] wv_next_sum;
 		
-		for(i = 0; i < p_WIDTH; i = i + 1) begin : tree_layer
-			localparam block_idx = (i / p_BLOCK_SIZE);
-			localparam state_idx = block_idx * p_BLOCK_SIZE - 1;
+		for(i = 0; i < WIDTH; i = i + 1) begin : tree_layer
+			localparam block_idx = (i / BLOCK_SIZE);
+			localparam state_idx = block_idx * BLOCK_SIZE - 1;
 			
 			if((block_idx % 2) == 0) begin
 			
@@ -93,7 +93,7 @@ generate
 			end
 		end
 			
-		__AddrCarryLookAheadCSResolver #(.p_WIDTH(p_WIDTH), .p_BLOCK_SIZE(p_BLOCK_SIZE * 2)) prefix_tree_0(wv_next_carry, wv_next_sum, owv_out);
+		__AddrCarryLookAheadCSResolver #(.WIDTH(WIDTH), .BLOCK_SIZE(BLOCK_SIZE * 2)) prefix_tree_0(wv_next_carry, wv_next_sum, owv_out);
 		
 	end
 
@@ -105,32 +105,32 @@ endmodule // __AddrCarryLookAheadCSResolver
 
 module AddrCarryLookAhead
 	#(
-	parameter p_WIDTH = 2 // MUST BE greater than zero.
+	parameter WIDTH = 2 // MUST BE greater than zero.
 	)
 	(
-	input [p_WIDTH-1:0] iwv_x,
-	input [p_WIDTH-1:0] iwv_y,
+	input [WIDTH-1:0] iwv_x,
+	input [WIDTH-1:0] iwv_y,
 	input iw_carry,
 	
-	output [p_WIDTH:0] owv_carry,
-	output [p_WIDTH:0] owv_sum,
-	output [p_WIDTH:0] owv_cs,
+	output [WIDTH:0] owv_carry,
+	output [WIDTH:0] owv_sum,
+	output [WIDTH:0] owv_cs,
 	
-	output [p_WIDTH:0] owv_output
+	output [WIDTH:0] owv_output
 	);
 	
-localparam SUM_WIDTH = p_WIDTH + 1;
+localparam SUM_WIDTH = WIDTH + 1;
 	
 wire [SUM_WIDTH-1:0] wv_carry_init = {iwv_x & iwv_y, iw_carry};
 wire [SUM_WIDTH-1:0] wv_sum_init = {1'b0, iwv_x ^ iwv_y};
 
-wire [p_WIDTH-1:0] wv_carry;
-wire [p_WIDTH-1:0] wv_sum;
+wire [WIDTH-1:0] wv_carry;
+wire [WIDTH-1:0] wv_sum;
 
-wire [p_WIDTH-1:0] wv_carry_statuses;
+wire [WIDTH-1:0] wv_carry_statuses;
 
-assign wv_carry[p_WIDTH-1:1] = wv_carry_init[p_WIDTH-1:1];
-assign wv_sum[p_WIDTH-1:1] = wv_sum_init[p_WIDTH-1:1];
+assign wv_carry[WIDTH-1:1] = wv_carry_init[WIDTH-1:1];
+assign wv_sum[WIDTH-1:1] = wv_sum_init[WIDTH-1:1];
 
 
 // Setting the initial state 'Kill'.
@@ -140,7 +140,7 @@ __AddrCarryLookAheadCSPFunction pref(
 	.owv_state_next( { wv_carry[0], wv_sum[0] } )
 	);
 
-__AddrCarryLookAheadCSResolver #(.p_WIDTH(p_WIDTH)) resolver(
+__AddrCarryLookAheadCSResolver #(.WIDTH(WIDTH)) resolver(
 	.iwv_carry(wv_carry),
 	.iwv_sum(wv_sum),
 	.owv_out(wv_carry_statuses)

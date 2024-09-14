@@ -24,7 +24,7 @@ always @(w_output) begin
 		`assert_fail;
 end
 
-Debouncer #(.p_CNT_WIDTH(CNT_WIDTH), .p_INIT_VALUE(1'b0)) uut(r_clk, r_input, w_output);
+Debouncer #(.CNT_WIDTH(CNT_WIDTH), .INIT_VALUE(1'b0)) uut(r_clk, r_input, w_output);
 
 initial begin
 

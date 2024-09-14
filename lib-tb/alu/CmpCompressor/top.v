@@ -2,20 +2,20 @@
 `include "lib/alu/CmpCompressor.v"
 
 module CmpCompressorInstanceUnsigned #(
-	parameter p_ARG_WIDTH = 1
+	parameter ARG_WIDTH = 1
 ) ();
 
-localparam ARG_RANGE = $pow(2, p_ARG_WIDTH);
+localparam ARG_RANGE = $pow(2, ARG_WIDTH);
 
 wire w_zero;
 wire w_equal;
 wire w_less;
 wire w_greater;
 
-reg unsigned [p_ARG_WIDTH-1:0] rv_x;
-reg unsigned [p_ARG_WIDTH-1:0] rv_y;
+reg unsigned [ARG_WIDTH-1:0] rv_x;
+reg unsigned [ARG_WIDTH-1:0] rv_y;
 
-CmpCompressorUnsigned #(.p_WIDTH(p_ARG_WIDTH)) uut(.iv_x(rv_x), .iv_y(rv_y), .o_zero(w_zero), .o_equal(w_equal), .o_less(w_less), .o_greater(w_greater));
+CmpCompressorUnsigned #(.WIDTH(ARG_WIDTH)) uut(.iv_x(rv_x), .iv_y(rv_y), .o_zero(w_zero), .o_equal(w_equal), .o_less(w_less), .o_greater(w_greater));
 
 wire w_zero_ok = ((rv_x == 0) & (rv_y == 0)) == w_zero;
 wire w_equal_ok = (rv_x == rv_y) == w_equal;
@@ -47,20 +47,20 @@ endmodule // CmpCompressorInstanceUnsigned
 
 	
 module CmpCompressorInstanceSigned #(
-	parameter p_ARG_WIDTH = 1
+	parameter ARG_WIDTH = 1
 ) ();
 
-localparam ARG_RANGE = $pow(2, p_ARG_WIDTH);
+localparam ARG_RANGE = $pow(2, ARG_WIDTH);
 
 wire w_zero;
 wire w_equal;
 wire w_less;
 wire w_greater;
 
-reg signed [p_ARG_WIDTH-1:0] rv_x;
-reg signed [p_ARG_WIDTH-1:0] rv_y;
+reg signed [ARG_WIDTH-1:0] rv_x;
+reg signed [ARG_WIDTH-1:0] rv_y;
 
-CmpCompressorSigned #(.p_WIDTH(p_ARG_WIDTH)) uut(.iv_x(rv_x), .iv_y(rv_y), .o_zero(w_zero), .o_equal(w_equal), .o_less(w_less), .o_greater(w_greater));
+CmpCompressorSigned #(.WIDTH(ARG_WIDTH)) uut(.iv_x(rv_x), .iv_y(rv_y), .o_zero(w_zero), .o_equal(w_equal), .o_less(w_less), .o_greater(w_greater));
 
 wire w_zero_ok = ((rv_x == 0) & (rv_y == 0)) == w_zero;
 wire w_equal_ok = (rv_x == rv_y) == w_equal;
@@ -94,7 +94,7 @@ module top();
 
 localparam WIDTH_MAX = 3;
 
-CmpCompressorInstanceUnsigned #(.p_ARG_WIDTH(WIDTH_MAX)) cmp_inst_unsigned();
-//CmpCompressorInstanceSigned #(.p_ARG_WIDTH(WIDTH_MAX)) cmp_inst_signed();
+CmpCompressorInstanceUnsigned #(.ARG_WIDTH(WIDTH_MAX)) cminst_unsigned();
+//CmpCompressorInstanceSigned #(.ARG_WIDTH(WIDTH_MAX)) cminst_signed();
 
 endmodule // top

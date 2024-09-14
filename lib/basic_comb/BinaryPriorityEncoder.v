@@ -3,7 +3,7 @@
 //
 // Binary priority encoder.
 //
-// Truth table for p_WIDTH = 5
+// Truth table for WIDTH = 5
 // ----------------------------------
 // | iv_input | o_enable |  ov_addr |
 // ----------------------------------
@@ -18,14 +18,14 @@
 // ==================================================================
 module BinaryProirityEncoder
 		#(
-			parameter p_WIDTH = 5 // Must be greater than one.
+			parameter WIDTH = 5 // Must be greater than one.
 		) (
-			input [p_WIDTH - 1 : 0] iv_input,
+			input [WIDTH - 1 : 0] iv_input,
 			output o_enable,
-			output [p_ADDR_WIDTH - 1 : 0] ov_addr
+			output [ADDR_WIDTH - 1 : 0] ov_addr
 		);
 
-localparam p_ADDR_WIDTH = $clog2(p_WIDTH);
+localparam ADDR_WIDTH = $clog2(WIDTH);
 
 assign o_enable = |ov_addr | iv_input[0];
 
@@ -34,15 +34,15 @@ generate
 	genvar i;
 	genvar j;
 	
-	for(i = 0; i < p_ADDR_WIDTH; i = i + 1) begin : iterate_addr
+	for(i = 0; i < ADDR_WIDTH; i = i + 1) begin : iterate_addr
 	
-		wire [p_WIDTH-1:0] wv_p_en;
-		wire [p_WIDTH-1:0] wv_p;
+		wire [WIDTH-1:0] wv_en;
+		wire [WIDTH-1:0] wv_p;
 		
-		for(j = 0; j < p_WIDTH; j = j + 1) begin : gen_out
-			if(j + 1 < p_WIDTH) begin
-				assign wv_p_en[j] = ~(|iv_input[p_WIDTH-1: j+1]);
-				assign wv_p[j] = ((j >> i) % 2) ? (iv_input[j] & wv_p_en[j]) : 1'b0;
+		for(j = 0; j < WIDTH; j = j + 1) begin : gen_out
+			if(j + 1 < WIDTH) begin
+				assign wv_en[j] = ~(|iv_input[WIDTH-1: j+1]);
+				assign wv_p[j] = ((j >> i) % 2) ? (iv_input[j] & wv_en[j]) : 1'b0;
 			end else begin
 				assign wv_p[j] = ((j >> i) % 2) ? iv_input[j] : 1'b0;
 			end

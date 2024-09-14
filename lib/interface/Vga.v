@@ -1,17 +1,17 @@
 module VgaLineTracker
 	#(
-		parameter P_CNT_WIDTH = 8,
+		parameter CNT_WIDTH = 8,
 		
-		parameter P_VISIBLE = 1,
-		parameter P_BACK_PORCH = 1,
-		parameter P_SYNC = 1,
-		parameter P_FRONT_PORCH = 1
+		parameter VISIBLE = 1,
+		parameter BACK_PORCH = 1,
+		parameter SYNC = 1,
+		parameter FRONT_PORCH = 1
 	)
 	
 	(
 		input i_clk,
 		input i_count,
-		output [P_CNT_WIDTH - 1 : 0] oa_coord,
+		output [CNT_WIDTH - 1 : 0] oa_coord,
 		output o_visible,
 		output o_sync,
 		output o_reset_counter
@@ -24,20 +24,20 @@ module VgaLineTracker
 	localparam [1 : 0] STATE_FRONT_PORCH = 3;
 	
 	// Triggers
-	localparam [P_CNT_WIDTH - 1 : 0] LP_OFFSET_VIS_2_BP = P_VISIBLE - 1;
-	localparam [P_CNT_WIDTH - 1 : 0] LP_OFFSET_BP_2_SYNC = LP_OFFSET_VIS_2_BP + P_BACK_PORCH;
-	localparam [P_CNT_WIDTH - 1 : 0] LP_OFFSET_SYNC_2_FP = LP_OFFSET_BP_2_SYNC + P_SYNC;
-	localparam [P_CNT_WIDTH - 1 : 0] LP_OFFSET_FP_2_VIS = LP_OFFSET_SYNC_2_FP + P_FRONT_PORCH;
+	localparam [CNT_WIDTH - 1 : 0] OFFSET_VIS_2_BP = VISIBLE - 1;
+	localparam [CNT_WIDTH - 1 : 0] OFFSET_B2_SYNC = OFFSET_VIS_2_BP + BACK_PORCH;
+	localparam [CNT_WIDTH - 1 : 0] OFFSET_SYNC_2_FP = OFFSET_B2_SYNC + SYNC;
+	localparam [CNT_WIDTH - 1 : 0] OFFSET_F2_VIS = OFFSET_SYNC_2_FP + FRONT_PORCH;
 
-	reg [P_CNT_WIDTH - 1 : 0] ra_coord = 0;
+	reg [CNT_WIDTH - 1 : 0] ra_coord = 0;
 	
 	reg [1 : 0] ra_state = STATE_VISIBLE;
 
 	wire trig_state_next =
 		o_reset_counter |
-		(ra_coord == LP_OFFSET_VIS_2_BP) |
-		(ra_coord == LP_OFFSET_BP_2_SYNC) |
-		(ra_coord == LP_OFFSET_SYNC_2_FP);
+		(ra_coord == OFFSET_VIS_2_BP) |
+		(ra_coord == OFFSET_B2_SYNC) |
+		(ra_coord == OFFSET_SYNC_2_FP);
 		
 	always@(posedge i_clk) begin
 		if(i_count) begin
@@ -49,7 +49,7 @@ module VgaLineTracker
 	assign oa_coord = ra_coord;
 	assign o_visible = (ra_state == STATE_VISIBLE);
 	assign o_sync = ( ra_state == STATE_SYNC );
-	assign o_reset_counter = (ra_coord == LP_OFFSET_FP_2_VIS);
+	assign o_reset_counter = (ra_coord == OFFSET_F2_VIS);
 	
 endmodule // VgaPixelTracker
 
@@ -58,23 +58,23 @@ endmodule // VgaPixelTracker
 
 module VgaAreaTracker
 	#(
-		parameter P_CNT_WIDTH = 8,
+		parameter CNT_WIDTH = 8,
 		
-		parameter P_H_VISIBLE = 1,
-		parameter P_H_BACK_PORCH = 1,
-		parameter P_H_SYNC = 1,
-		parameter P_H_FRONT_PORCH = 1,
+		parameter H_VISIBLE = 1,
+		parameter H_BACK_PORCH = 1,
+		parameter H_SYNC = 1,
+		parameter H_FRONT_PORCH = 1,
 		
-		parameter P_V_VISIBLE = 1,
-		parameter P_V_BACK_PORCH = 1,
-		parameter P_V_SYNC = 1,
-		parameter P_V_FRONT_PORCH = 1
+		parameter V_VISIBLE = 1,
+		parameter V_BACK_PORCH = 1,
+		parameter V_SYNC = 1,
+		parameter V_FRONT_PORCH = 1
 	)
 	
 	(
 		input i_clk,
-		output [P_CNT_WIDTH - 1 : 0] oa_h_coord,
-		output [P_CNT_WIDTH - 1 : 0] oa_v_coord,
+		output [CNT_WIDTH - 1 : 0] oa_h_coord,
+		output [CNT_WIDTH - 1 : 0] oa_v_coord,
 		output o_visible,
 		output o_h_sync,
 		output o_v_sync,
@@ -87,12 +87,12 @@ module VgaAreaTracker
 	
 	VgaLineTracker
 		#(
-			.P_CNT_WIDTH(P_CNT_WIDTH),
+			.CNT_WIDTH(CNT_WIDTH),
 			
-			.P_VISIBLE(P_H_VISIBLE),
-			.P_BACK_PORCH(P_H_BACK_PORCH),
-			.P_SYNC(P_H_SYNC),
-			.P_FRONT_PORCH(P_H_FRONT_PORCH)
+			.VISIBLE(H_VISIBLE),
+			.BACK_PORCH(H_BACK_PORCH),
+			.SYNC(H_SYNC),
+			.FRONT_PORCH(H_FRONT_PORCH)
 		)
 		vga_h_pixel_tracker
 		(
@@ -106,12 +106,12 @@ module VgaAreaTracker
 		
 	VgaLineTracker
 		#(
-			.P_CNT_WIDTH(P_CNT_WIDTH),
+			.CNT_WIDTH(CNT_WIDTH),
 			
-			.P_VISIBLE(P_V_VISIBLE),
-			.P_BACK_PORCH(P_V_BACK_PORCH),
-			.P_SYNC(P_V_SYNC),
-			.P_FRONT_PORCH(P_V_FRONT_PORCH)
+			.VISIBLE(V_VISIBLE),
+			.BACK_PORCH(V_BACK_PORCH),
+			.SYNC(V_SYNC),
+			.FRONT_PORCH(V_FRONT_PORCH)
 		)
 		vga_v_pixel_tracker
 		(

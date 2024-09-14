@@ -10,19 +10,19 @@
 # --  Board info: https://www.nandland.com/goboard/introduction.html
 # --  Pinout: https://www.nandland.com/goboard/images/Go_Board_V1.pdf
 
-# ------------ User Leds ------------------------------------------------------
+# ------------ User Leds [active high] ------------------------------------------------------
 set_io --warn-no-port LED1  56
 set_io --warn-no-port LED2  57
 set_io --warn-no-port LED3  59
 set_io --warn-no-port LED4  60
 
-# ------------ User push-buttons ----------------------------------------------
+# ------------ User push-buttons [active high] ----------------------------------------------
 set_io --warn-no-port SW1  53
 set_io --warn-no-port SW2  51
 set_io --warn-no-port SW3  54
 set_io --warn-no-port SW4  52
 
-# ------------ 7 segments -----------------------------------------------------
+# ------------ 7 segments [active high] -----------------------------------------------------
 set_io --warn-no-port S1_A  3
 set_io --warn-no-port S1_B  4
 set_io --warn-no-port S1_C  93
@@ -39,7 +39,7 @@ set_io --warn-no-port S2_E  94
 set_io --warn-no-port S2_F  8
 set_io --warn-no-port S2_G  96
 
-# -------------------------- SYSTEM CLOCK ------------------------------------
+# -------------------------- SYSTEM CLOCK 25Mhz ------------------------------------
 set_io --warn-no-port CLK 15
 
 # -------------------------- UART --------------------------------------------

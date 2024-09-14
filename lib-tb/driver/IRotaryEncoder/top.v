@@ -1,5 +1,5 @@
 `include "lib-tb/assert.v"
-`include "lib/io/IRotaryEncoder.v"
+`include "lib/driver/IRotaryEncoder.v"
 
 module top();
 

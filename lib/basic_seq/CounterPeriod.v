@@ -6,21 +6,21 @@
 /////////////////////////////////////////////////////
 module CounterPeriod
 	#(
-		parameter p_PERIOD = 4 // Must be greater than one.
+		parameter PERIOD = 4 // Must be greater than one.
 	)(
 		input i_clk,
 		input i_reset,
 		output o_period
 	);
 	
-localparam lp_WIDTH = $clog2(p_PERIOD);
-localparam lp_RESET = p_PERIOD - 1;
+localparam lWIDTH = $clog2(PERIOD);
+localparam lRESET = PERIOD - 1;
 
-reg [lp_WIDTH-1:0] rv_counter;
+reg [lWIDTH-1:0] rv_counter;
 
 wire w_reset = i_reset | o_period;
 
-assign o_period = rv_counter == lp_RESET;
+assign o_period = rv_counter == lRESET;
 
 always @(posedge i_clk) begin
 	if(w_reset)
@@ -35,29 +35,29 @@ endmodule // CounterPeriod
 
 /////////////////////////////////////////////////////
 //
-//  Half and full period counter.
+//  SimpleSampler.
 //
 /////////////////////////////////////////////////////
-module CounterHalfPeriod
+module SimpleSampler
 	#(
-		parameter p_PERIOD = 4 // Must be greater than three.
+		parameter PERIOD = 4 // Must be greater than three.
 	)(
 		input i_clk,
 		input i_reset,
-		output o_half_period,
-		output o_period
+		output o_sample,
+		output o_reset
 	);
 	
-localparam lp_WIDTH = $clog2(p_PERIOD);
-localparam lp_RESET = p_PERIOD - 1;
-localparam lp_HALF_PERIOD = (p_PERIOD / 2) - 1;
+localparam lWIDTH = $clog2(PERIOD);
+localparam lRESET = PERIOD - 1;
+localparam lHALF_PERIOD = (PERIOD / 2) - 1;
 
-reg [lp_WIDTH-1:0] rv_counter;
+reg [lWIDTH-1:0] rv_counter;
 
-wire w_reset = i_reset | o_period;
+wire w_reset = i_reset | o_reset;
 
-assign o_half_period = rv_counter == lp_HALF_PERIOD;
-assign o_period = rv_counter == lp_RESET;
+assign o_sample = rv_counter == lHALF_PERIOD;
+assign o_reset = rv_counter == lRESET;
 
 always @(posedge i_clk) begin
 	if(w_reset)
@@ -66,6 +66,6 @@ always @(posedge i_clk) begin
 		rv_counter <= rv_counter + 1;
 end
 	
-endmodule // CounterHalfPeriod
+endmodule // SimpleSampler
 
 

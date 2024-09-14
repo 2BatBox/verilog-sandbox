@@ -1,11 +1,14 @@
 `include "lib-tb/assert.v"
-`include "lib/io/SerialAsync.v"
+`include "lib/interface/Uart.v"
 
 module top;
 
-localparam lp_WIDTH = 4;
-localparam lp_PERIOD = 2;
-localparam lp_ARG_RANGE = 2 ** lp_WIDTH;
+localparam WIDTH = 4;
+localparam IS_PARITY = 1;
+localparam IS_PARITY_ODD = 1;
+localparam WIDTH_STOP = 2;
+localparam PERIOD = 16;
+localparam ARG_RANGE = 2 ** WIDTH;
 
 always begin
 	#1 r_clk = ~r_clk;
@@ -14,44 +17,67 @@ end
 reg r_clk = 0;
 reg r_reset = 1;
 
-// tx
-reg [lp_WIDTH - 1 : 0] rv_tx_data = 0;
+reg [WIDTH - 1 : 0] rv_tx_data = 0;
 reg r_tx_data_ready = 0;
-wire w_tx;
 wire w_tx_busy;
 
-// rx
-wire [lp_WIDTH - 1 : 0] wv_rx_data;
-wire w_rx_full;
+wire w_rx_tx;
+wire [WIDTH - 1 : 0] wv_rx_data;
+wire w_rx_data_ready;
+
 
 UartTx
 	#(
-		.p_DATA_WIDTH(lp_WIDTH),
-		.p_PERIOD(lp_PERIOD)
-	) stx(
+		.WIDTH_DATA(WIDTH),
+		.IS_PARITY(IS_PARITY),
+		.IS_PARITY_ODD(IS_PARITY_ODD),
+		.WIDTH_STOP(WIDTH_STOP),
+		.CLK_PERIOD(PERIOD)
+	) uart_tx(
 		.i_clk(r_clk),
 		.i_reset(r_reset),
 		.iv_data(rv_tx_data),
 		.i_data_ready(r_tx_data_ready),
-		.o_tx(w_tx),
+		.o_tx(w_rx_tx),
 		.o_busy(w_tx_busy)
 	);
 	
-	/*
-
-SerialRx
+UartRx
 	#(
-		.p_WIDTH(lp_WIDTH)
-	) srx(
+		.WIDTH_DATA(WIDTH),
+		.IS_PARITY(IS_PARITY),
+		.IS_PARITY_ODD(IS_PARITY_ODD),
+		.WIDTH_STOP(WIDTH_STOP),
+		.CLK_PERIOD(PERIOD)
+	) uart_rx(
 		.i_clk(r_clk),
 		.i_reset(r_reset),
-		.i_rx_start(w_rx_tx_start),
-		.i_rx_sync(w_rx_sync),
-		.i_serial(w_serial),
-		.ov_data(wv_data_out),
-		.o_full(w_rx_full)
+		.i_rx(w_rx_tx),
+		.ov_data(wv_rx_data),
+		.o_data_ready(w_rx_data_ready)
 	);
-	*/
+	
+task tx_rx_check;
+input [WIDTH:0] in;
+begin
+	
+	// TX
+	wait(~w_tx_busy);
+	rv_tx_data <= in;
+	@(negedge r_clk);
+	r_tx_data_ready <= 1;
+	@(negedge r_clk);
+	r_tx_data_ready <= 0;
+	
+	// RX
+	wait(~w_rx_data_ready);
+	wait(w_rx_data_ready);
+
+	// Check	
+	`assert_eq(wv_rx_data, rv_tx_data);
+	
+end
+endtask
 
 initial begin
 
@@ -61,33 +87,19 @@ initial begin
 	r_reset = 0;
 	@(negedge r_clk)
 	wait(~w_tx_busy);
-	@(negedge r_clk);
+	wait(~w_rx_data_ready);
+	@(negedge r_clk)
+	#PERIOD;
 	
-	rv_tx_data = 8'b0011;
-	r_tx_data_ready = 1;
-	
-	wait(w_tx_busy);
-	wait(~w_tx_busy);
-	@(negedge r_clk);
-	
-//	for(i = 0; i < lp_ARG_RANGE; ++i) begin
-	
-//		rv_tx_data = i;
-//		r_tx_data_ready = 1;
-		//wait(~w_tx_last);
-		//wait(w_tx_last);
-//		@(negedge r_clk);
-		
-//		$display("| %b | %b | %b |", rv_in, wv_out_ref, wv_out);
-//		`assert_eq(rv_tx_data, wv_rx_data);
-//	end
-	
+	for(i = 0; i < ARG_RANGE; ++i) begin
+		tx_rx_check(i);
+	end
 	`assert_pass;
 
 end
 
 initial begin
-	$dumpfile("SerialRxTx.vcd");
+	$dumpfile("Uart.vcd");
 	$dumpvars(0, top);
 end
 

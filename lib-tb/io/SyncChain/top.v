@@ -13,7 +13,7 @@ reg r_reset = 0;
 reg  [WIDTH - 1:0] rv_input;
 wire [WIDTH - 1:0] wv_output;
 
-SyncChain #(.p_WIDTH(WIDTH), .p_DEPTH(DEPTH)) uut(r_clk, r_reset, rv_input, wv_output);
+SyncChain #(.WIDTH(WIDTH), .DEPTH(DEPTH)) uut(.i_clk(r_clk), .iv_input(rv_input), .ov_output(wv_output));
 
 // setup clock
 always begin

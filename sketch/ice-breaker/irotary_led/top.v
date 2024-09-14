@@ -31,8 +31,8 @@ reg [3:0] rv_rgb = 0;
 wire w_cnt;
 wire w_cnt_cw;
 
-SyncChain #(.p_WIDTH(1)) m_sync_chain (CLK, w_button, w_button_sync);
-Debouncer #(.p_CNT_WIDTH(16)) m_db(CLK, w_button_sync, w_button_sync_deb);
+SyncChain #(.WIDTH(1)) m_sync_chain (CLK, w_button, w_button_sync);
+Debouncer #(.CNT_WIDTH(16)) m_db(CLK, w_button_sync, w_button_sync_deb);
 IRotaryEncoder m_ire(CLK, w_phase_a, w_phase_b, w_cnt, w_cnt_cw);
 
 always@(posedge CLK) begin

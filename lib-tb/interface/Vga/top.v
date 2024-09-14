@@ -3,8 +3,8 @@
 
 module top();
 
-localparam LP_COUNTER_WIDTH = 10;
-localparam LP_CLOCK_PERIOD = 1;
+localparam COUNTER_WIDTH = 10;
+localparam CLOCK_PERIOD = 1;
 
 reg uut_clk = 0;
 
@@ -12,17 +12,17 @@ wire uut_vga_hsync;
 wire uut_vga_vsync;
 
 always begin
-	#LP_CLOCK_PERIOD uut_clk = ~uut_clk;
+	#CLOCK_PERIOD uut_clk = ~uut_clk;
 end
 
 VgaAreaTracker
 	#(
-		.P_CNT_WIDTH(LP_COUNTER_WIDTH),
+		.CNT_WIDTH(COUNTER_WIDTH),
 		
-		.P_H_VISIBLE(1),
-		.P_H_BACK_PORCH(2),
-		.P_H_SYNC(3),
-		.P_H_FRONT_PORCH(4)
+		.H_VISIBLE(1),
+		.H_BACK_PORCH(2),
+		.H_SYNC(3),
+		.H_FRONT_PORCH(4)
 
 	)
 	

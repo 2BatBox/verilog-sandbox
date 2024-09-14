@@ -10,28 +10,28 @@
 
 module __PrefixReferenceXor
 	#(
-	parameter p_WIDTH = 2 // MUST BE greater than zero.
+	parameter WIDTH = 2 // MUST BE greater than zero.
 	)
 	(
-	input [p_WIDTH-1:0] iwv_in,
-	output [p_WIDTH-1:0] owv_out
+	input [WIDTH-1:0] iwv_in,
+	output [WIDTH-1:0] owv_out
 	);
 
-__GenericPrefixReferenceXor #(.p_WIDTH(p_WIDTH)) impl(.iwv_in(iwv_in), .owv_out(owv_out));	
+__GenericPrefixReferenceXor #(.WIDTH(WIDTH)) impl(.iwv_in(iwv_in), .owv_out(owv_out));	
 
 endmodule // __PrefixReferenceXor
 
 
 module PrefixXor
 	#(
-	parameter p_WIDTH = 2 // MUST BE greater than one.
+	parameter WIDTH = 2 // MUST BE greater than one.
 	)
 	(
-	input [p_WIDTH-1:0] iwv_in,
-	output [p_WIDTH-1:0] owv_out
+	input [WIDTH-1:0] iwv_in,
+	output [WIDTH-1:0] owv_out
 	);
 	
-GenericPrefixXor #(.p_WIDTH(p_WIDTH)) impl(.iwv_in(iwv_in), .owv_out(owv_out));	
+GenericPrefixXor #(.WIDTH(WIDTH)) impl(.iwv_in(iwv_in), .owv_out(owv_out));	
 
 endmodule // PrefixXor
 
@@ -48,28 +48,28 @@ endmodule // PrefixXor
 
 module __PrefixReferenceAnd
 	#(
-	parameter p_WIDTH = 2 // MUST BE greater than zero.
+	parameter WIDTH = 2 // MUST BE greater than zero.
 	)
 	(
-	input [p_WIDTH-1:0] iwv_in,
-	output [p_WIDTH-1:0] owv_out
+	input [WIDTH-1:0] iwv_in,
+	output [WIDTH-1:0] owv_out
 	);
 
-__GenericPrefixReferenceAnd #(.p_WIDTH(p_WIDTH)) impl(.iwv_in(iwv_in), .owv_out(owv_out));	
+__GenericPrefixReferenceAnd #(.WIDTH(WIDTH)) impl(.iwv_in(iwv_in), .owv_out(owv_out));	
 
 endmodule // __PrefixReferenceAnd
 
 
 module PrefixAnd
 	#(
-	parameter p_WIDTH = 2 // MUST BE greater than one.
+	parameter WIDTH = 2 // MUST BE greater than one.
 	)
 	(
-	input [p_WIDTH-1:0] iwv_in,
-	output [p_WIDTH-1:0] owv_out
+	input [WIDTH-1:0] iwv_in,
+	output [WIDTH-1:0] owv_out
 	);
 	
-GenericPrefixAnd #(.p_WIDTH(p_WIDTH)) impl(.iwv_in(iwv_in), .owv_out(owv_out));	
+GenericPrefixAnd #(.WIDTH(WIDTH)) impl(.iwv_in(iwv_in), .owv_out(owv_out));	
 
 endmodule // PrefixAnd
 
@@ -85,27 +85,27 @@ endmodule // PrefixAnd
 
 module __PrefixReferenceOr
 	#(
-	parameter p_WIDTH = 2 // MUST BE greater than zero.
+	parameter WIDTH = 2 // MUST BE greater than zero.
 	)
 	(
-	input [p_WIDTH-1:0] iwv_in,
-	output [p_WIDTH-1:0] owv_out
+	input [WIDTH-1:0] iwv_in,
+	output [WIDTH-1:0] owv_out
 	);
 
-__GenericPrefixReferenceOr #(.p_WIDTH(p_WIDTH)) impl(.iwv_in(iwv_in), .owv_out(owv_out));	
+__GenericPrefixReferenceOr #(.WIDTH(WIDTH)) impl(.iwv_in(iwv_in), .owv_out(owv_out));	
 
 endmodule // __PrefixReferenceOr
 
 
 module PrefixOr
 	#(
-	parameter p_WIDTH = 2 // MUST BE greater than one.
+	parameter WIDTH = 2 // MUST BE greater than one.
 	)
 	(
-	input [p_WIDTH-1:0] iwv_in,
-	output [p_WIDTH-1:0] owv_out
+	input [WIDTH-1:0] iwv_in,
+	output [WIDTH-1:0] owv_out
 	);
 	
-GenericPrefixOr #(.p_WIDTH(p_WIDTH)) impl(.iwv_in(iwv_in), .owv_out(owv_out));	
+GenericPrefixOr #(.WIDTH(WIDTH)) impl(.iwv_in(iwv_in), .owv_out(owv_out));	
 
 endmodule // PrefixOr

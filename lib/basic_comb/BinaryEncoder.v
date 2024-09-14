@@ -3,7 +3,7 @@
 //
 // Binary encoder.
 //
-// Truth table for p_WIDTH = 5
+// Truth table for WIDTH = 5
 // ----------------------------------
 // | iv_input | o_enable |  ov_addr |
 // ----------------------------------
@@ -18,14 +18,14 @@
 // ==================================================================
 module BinaryEncoder
 		#(
-			parameter p_WIDTH = 2 // Must be greater than one.
+			parameter WIDTH = 2 // Must be greater than one.
 		) (
-			input [p_WIDTH - 1 : 0] iv_input,
+			input [WIDTH - 1 : 0] iv_input,
 			output o_enable, // Active HIGH
-			output [p_ADDR_WIDTH - 1 : 0] ov_addr
+			output [ADDR_WIDTH - 1 : 0] ov_addr
 		);
 
-localparam p_ADDR_WIDTH = $clog2(p_WIDTH);
+localparam ADDR_WIDTH = $clog2(WIDTH);
 
 // TODO: Check for any difference in LUT consumption.
 
@@ -37,11 +37,11 @@ generate
 	genvar i;
 	genvar j;
 	
-	for(i = 0; i < p_ADDR_WIDTH; i = i + 1) begin : iterate_addr
+	for(i = 0; i < ADDR_WIDTH; i = i + 1) begin : iterate_addr
 	
-		wire [p_WIDTH-1:0] wv_p;
+		wire [WIDTH-1:0] wv_p;
 		
-		for(j = 0; j < p_WIDTH; j = j + 1) begin : gen_out
+		for(j = 0; j < WIDTH; j = j + 1) begin : gen_out
 			assign wv_p[j] = ((j >> i) % 2) ? iv_input[j] : 1'b0;
 		end
 		

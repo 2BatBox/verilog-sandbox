@@ -1,5 +1,6 @@
 `include "lib-tb/assert.v"
-`include "lib/basic_comb/BinaryDecEnc.v"
+`include "lib/basic_comb/BinaryDecoder.v"
+`include "lib/basic_comb/BinaryEncoder.v"
 
 module top();
 
@@ -15,8 +16,8 @@ wire [DECODED_WIDTH-1:0] wv_decoder_output;
 wire [ADDR_WIDTH-1:0] wv_output_addr;
 wire w_output_enable;
 
-BinaryDecoder #(.p_WIDTH(DECODED_WIDTH)) dec(rv_input_addr, r_input_enable, wv_decoder_output);
-BinaryEncoder #(.p_WIDTH(DECODED_WIDTH)) enc(wv_decoder_output, w_output_enable, wv_output_addr);
+BinaryDecoder #(.WIDTH(DECODED_WIDTH)) dec(rv_input_addr, r_input_enable, wv_decoder_output);
+BinaryEncoder #(.WIDTH(DECODED_WIDTH)) enc(wv_decoder_output, w_output_enable, wv_output_addr);
 
 initial begin
 

@@ -109,22 +109,22 @@ endmodule // __CmpCompressorCellSigned
 //===================================================
 module __CmpCompressorUnsigned
 	#(
-	parameter p_WIDTH = 2 // MUST BE greater than zero.
+	parameter WIDTH = 2 // MUST BE greater than zero.
 	)
 	(
-	input [p_WIDTH-1:0] iv_x,
-	input [p_WIDTH-1:0] iv_y,
+	input [WIDTH-1:0] iv_x,
+	input [WIDTH-1:0] iv_y,
 	output o_x,
 	output o_y
 	);
 	
-	localparam lp_pairs = p_WIDTH / 2;
-	localparam lp_tail = p_WIDTH % 2;
-	localparam lp_wires = lp_pairs + lp_tail;
+	localparam lpairs = WIDTH / 2;
+	localparam ltail = WIDTH % 2;
+	localparam lwires = lpairs + ltail;
 	
 generate
 
-	if(p_WIDTH == 1) begin
+	if(WIDTH == 1) begin
 	
 		assign o_x = iv_x[0];
 		assign o_y = iv_y[0];
@@ -133,20 +133,20 @@ generate
 	
 		genvar p;
 	
-		wire [lp_wires - 1 : 0] wv_x;
-		wire [lp_wires - 1 : 0] wv_y;
+		wire [lwires - 1 : 0] wv_x;
+		wire [lwires - 1 : 0] wv_y;
 	
-		for(p = 0; p < lp_pairs; p = p + 1) begin : gen_cells
+		for(p = 0; p < lpairs; p = p + 1) begin : gen_cells
 			localparam idx = p * 2;
 			__CmpCompressorCellUnsigned gen_cells_0(iv_x[idx + 1 : idx], iv_y[idx + 1 : idx], wv_x[p], wv_y[p]);
 		end
 		
-		if(lp_tail) begin
-			assign wv_x[lp_wires - 1] = iv_x[p_WIDTH - 1];
-			assign wv_y[lp_wires - 1] = iv_y[p_WIDTH - 1];
+		if(ltail) begin
+			assign wv_x[lwires - 1] = iv_x[WIDTH - 1];
+			assign wv_y[lwires - 1] = iv_y[WIDTH - 1];
 		end
 		
-		__CmpCompressorUnsigned #(.p_WIDTH(lp_wires)) cmp_gen_0(wv_x, wv_y, o_x, o_y);
+		__CmpCompressorUnsigned #(.WIDTH(lwires)) cmgen_0(wv_x, wv_y, o_x, o_y);
 		
 	end
 
@@ -163,11 +163,11 @@ endmodule // __CmpCompressorUnsigned
 //===================================================
 module CmpCompressorUnsigned
 	#(
-	parameter p_WIDTH = 2 // MUST BE greater than zero.
+	parameter WIDTH = 2 // MUST BE greater than zero.
 	)
 	(
-	input unsigned [p_WIDTH-1:0] iv_x,
-	input unsigned [p_WIDTH-1:0] iv_y,
+	input unsigned [WIDTH-1:0] iv_x,
+	input unsigned [WIDTH-1:0] iv_y,
 	output o_zero,
 	output o_equal,
 	output o_less,
@@ -177,7 +177,7 @@ module CmpCompressorUnsigned
 wire w_x;
 wire w_y;
 
-__CmpCompressorUnsigned #(.p_WIDTH(p_WIDTH)) cmp0(iv_x, iv_y, w_x, w_y);
+__CmpCompressorUnsigned #(.WIDTH(WIDTH)) cmp0(iv_x, iv_y, w_x, w_y);
 
 assign o_zero = ~w_x & ~w_y;
 assign o_equal = ~(w_x ^ w_y);
@@ -195,11 +195,11 @@ endmodule // CmpCompressorUnsigned
 //===================================================
 module CmpCompressorSigned
 	#(
-	parameter p_WIDTH = 2 // MUST BE greater than zero.
+	parameter WIDTH = 2 // MUST BE greater than zero.
 	)
 	(
-	input signed [p_WIDTH-1:0] iv_x,
-	input signed [p_WIDTH-1:0] iv_y,
+	input signed [WIDTH-1:0] iv_x,
+	input signed [WIDTH-1:0] iv_y,
 	output o_zero,
 	output o_equal,
 	output o_less,
@@ -211,22 +211,22 @@ wire w_y;
 
 generate
 
-	if(p_WIDTH == 1) begin
+	if(WIDTH == 1) begin
 	
 		assign w_x = iv_x[0];
 		assign w_y = iv_y[0];
 		
-	end else if(p_WIDTH == 2) begin
+	end else if(WIDTH == 2) begin
 	
 		__CmpCompressorCellSigned cmpc0(iv_x, iv_y, w_x, w_y);
 		
-	end else if(p_WIDTH > 2) begin
+	end else if(WIDTH > 2) begin
 	
 		wire wv_ux;
 		wire wv_uy;
 	
-		__CmpCompressorUnsigned #(.p_WIDTH(p_WIDTH - 1)) cmp0(iv_x[p_WIDTH-2:0], iv_y[p_WIDTH-2:0], wv_ux, wv_uy);
-		__CmpCompressorCellSigned cmpc0({iv_x[p_WIDTH-1], wv_ux}, {iv_y[p_WIDTH-1], wv_uy}, w_x, w_y);
+		__CmpCompressorUnsigned #(.WIDTH(WIDTH - 1)) cmp0(iv_x[WIDTH-2:0], iv_y[WIDTH-2:0], wv_ux, wv_uy);
+		__CmpCompressorCellSigned cmpc0({iv_x[WIDTH-1], wv_ux}, {iv_y[WIDTH-1], wv_uy}, w_x, w_y);
 	
 	end
 

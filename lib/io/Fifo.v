@@ -34,10 +34,10 @@
 module Fifo
 	#(
 		// The data bus width. MUST BE greater than zero.
-		parameter p_WIDTH = 1,    
+		parameter WIDTH = 1,    
 		
 		 // The fifo instance capacity. MUST BE greater than zero.
-		parameter p_CAPACITY = 1
+		parameter CAPACITY = 1
 	)
 	
 	(
@@ -48,7 +48,7 @@ module Fifo
 		input wire wrclk,
 		
 		// Write data bus.
-		input wire [p_WIDTH - 1 : 0] wrdata,
+		input wire [WIDTH - 1 : 0] wrdata,
 		
 		// Enable write signal. active=1
 		input wire wrena,
@@ -63,7 +63,7 @@ module Fifo
 		input wire rdena,
 
 		// Read data bus.
-		output wire [p_WIDTH - 1 : 0] rddata,
+		output wire [WIDTH - 1 : 0] rddata,
 		
 		// Full flag.
 		output wire full,
@@ -72,14 +72,14 @@ module Fifo
 		output wire empty
 	);
 	
-	localparam lp_SYNC_CHAIN_DEPTH = 2;
-	localparam lp_CNT_WIDTH = $clog2(p_CAPACITY + 1);
-	localparam lp_CAPACITY_MEM = 1 << lp_CNT_WIDTH;
+	localparam SYNC_CHAIN_DEPTH = 2;
+	localparam CNT_WIDTH = $clog2(CAPACITY + 1);
+	localparam CAPACITY_MEM = 1 << CNT_WIDTH;
 	
 	//=====================================
 	// Ring buffer.
 	//=====================================
-	reg [p_WIDTH - 1 : 0] block_ram[lp_CAPACITY_MEM];
+	reg [WIDTH - 1 : 0] block_ram[CAPACITY_MEM];
 	
 	
 	//=====================================
@@ -87,23 +87,23 @@ module Fifo
 	//=====================================
 	
 	// 'stored' counter.
-	wire [lp_CNT_WIDTH - 1 : 0] wr_stored_gray;
-	wire [lp_CNT_WIDTH - 1 : 0] wr_stored_bin;
+	wire [CNT_WIDTH - 1 : 0] wr_stored_gray;
+	wire [CNT_WIDTH - 1 : 0] wr_stored_bin;
 	
 	// The writing side view of 'loaded' counter.
-	wire [lp_CNT_WIDTH - 1 : 0] wr_loaded_gray;	
-	wire [lp_CNT_WIDTH - 1 : 0] wr_loaded_bin;
+	wire [CNT_WIDTH - 1 : 0] wr_loaded_gray;	
+	wire [CNT_WIDTH - 1 : 0] wr_loaded_bin;
 	
-	wire [lp_CNT_WIDTH - 1 : 0] wr_items = wr_stored_bin - wr_loaded_bin;
+	wire [CNT_WIDTH - 1 : 0] wr_items = wr_stored_bin - wr_loaded_bin;
 	
 	wire wr_rdrst;
-	wire wr_full = ~(wr_items < p_CAPACITY);
+	wire wr_full = ~(wr_items < CAPACITY);
 	
 	assign full = wr_full | wrrst | wr_rdrst;
 	
 	wire wr_stored_inc = ~full & wrena;
 	
-	GrayIncCounter #(.p_WIDTH(lp_CNT_WIDTH))
+	GrayIncCounter #(.WIDTH(CNT_WIDTH))
 		wr_gray_cnt_stored
 		(
 			.iw_clk(wrclk),
@@ -113,7 +113,7 @@ module Fifo
 			.owv_gray(wr_stored_gray)
 		);
 	
-	Gray2Bin #(.p_WIDTH(lp_CNT_WIDTH)) wr_grey2bin_loaded (wr_loaded_gray, wr_loaded_bin);
+	Gray2Bin #(.WIDTH(CNT_WIDTH)) wr_grey2bin_loaded (wr_loaded_gray, wr_loaded_bin);
 	
 	always@(posedge wrclk) begin
 		if(wr_stored_inc)
@@ -126,12 +126,12 @@ module Fifo
 	//=====================================
 	
 	// 'loaded' counter.
-	wire [lp_CNT_WIDTH - 1 : 0] rd_loaded_gray;
-	wire [lp_CNT_WIDTH - 1 : 0] rd_loaded_bin;
+	wire [CNT_WIDTH - 1 : 0] rd_loaded_gray;
+	wire [CNT_WIDTH - 1 : 0] rd_loaded_bin;
 	
 	// The reading side view of 'stored' counter.
-	wire [lp_CNT_WIDTH - 1 : 0] rd_stored_gray;	
-	wire [lp_CNT_WIDTH - 1 : 0] rd_stored_bin;
+	wire [CNT_WIDTH - 1 : 0] rd_stored_gray;	
+	wire [CNT_WIDTH - 1 : 0] rd_stored_bin;
 	
 	wire rd_wrrst;
 	wire rd_empty = (rd_stored_bin == rd_loaded_bin); 
@@ -140,7 +140,7 @@ module Fifo
 	assign rddata = block_ram[rd_loaded_bin];
 	assign empty = rd_empty | rdrst | rd_wrrst;
 	
-	GrayIncCounter #(.p_WIDTH(lp_CNT_WIDTH))
+	GrayIncCounter #(.WIDTH(CNT_WIDTH))
 		rd_gray_cnt_loaded
 		(
 			.iw_clk(rdclk),
@@ -150,13 +150,13 @@ module Fifo
 			.owv_gray(rd_loaded_gray)
 		);
 	
-	Gray2Bin #(.p_WIDTH(lp_CNT_WIDTH)) rd_grey2bin_stored (rd_stored_gray, rd_stored_bin);
+	Gray2Bin #(.WIDTH(CNT_WIDTH)) rd_grey2bin_stored (rd_stored_gray, rd_stored_bin);
 	
 	
 	//=====================================
 	// Clock domain crossing chains.
 	//=====================================
-	SyncChain #(.p_WIDTH(lp_CNT_WIDTH + 1), .p_DEPTH(lp_SYNC_CHAIN_DEPTH))
+	SyncChain #(.WIDTH(CNT_WIDTH + 1), .DEPTH(SYNC_CHAIN_DEPTH))
 		wr_sync_chain_loaded_gray
 		(
 			wrclk,
@@ -164,7 +164,7 @@ module Fifo
 			{ wr_rdrst, wr_loaded_gray }
 		);
 		
-	SyncChain #(.p_WIDTH(lp_CNT_WIDTH + 1), .p_DEPTH(lp_SYNC_CHAIN_DEPTH))
+	SyncChain #(.WIDTH(CNT_WIDTH + 1), .DEPTH(SYNC_CHAIN_DEPTH))
 		rd_sync_chain_stored_gray
 		(
 			rdclk,

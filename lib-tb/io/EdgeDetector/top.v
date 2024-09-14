@@ -14,7 +14,7 @@ always begin
 	#CLOCK_PERIOD r_clk = ~r_clk;
 end
 
-EdgeDetector #(.p_RISE_DETECTOR(0)) uut(r_clk, r_input, w_output);
+EdgeDetector #(.RISE_DETECTOR(0)) uut(r_clk, r_input, w_output);
 
 initial begin
 	repeat(10) begin
